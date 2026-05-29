@@ -71,12 +71,6 @@
             "openapi": "/api-reference/application_swagger.json"
           },
           {
-            "group": "Platform APIs",
-            "description": "APIs for managing platform aspects of Voxys Connect",
-            "includeTags": ["Accounts", "Account Users", "AgentBots", "Users"],
-            "openapi": "/api-reference/platform_swagger.json"
-          },
-          {
             "group": "Client APIs",
             "description": "APIs for client applications",
             "includeTags": [
