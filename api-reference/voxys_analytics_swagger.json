@@ -1,0 +1,1529 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect \u2013 Extended Features",
+    "description": "API documentation for Voxys Connect extended features: Campaigns, WhatsApp Templates & Flows, Appointments, Scheduled Messages, Projects, Internal Channels, Customer Pulse, and Reports.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Analytics",
+      "tags": [
+        "Customer Pulse",
+        "Leads Reports"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Customer Pulse",
+      "description": "Sentiment analysis and customer pulse metrics"
+    },
+    {
+      "name": "Leads Reports",
+      "description": "Lead pipeline analytics and CSV export (v2)"
+    }
+  ],
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/customer_pulse": {
+      "get": {
+        "tags": [
+          "Customer Pulse"
+        ],
+        "operationId": "listCustomerPulse",
+        "summary": "List sentiment data",
+        "description": "Returns sentiment data for conversations with optional filters and grouping.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Start timestamp (Unix epoch)"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "End timestamp (Unix epoch)"
+          },
+          {
+            "name": "inbox_id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sentiment",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "positive",
+                "neutral",
+                "negative"
+              ]
+            }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month",
+                "agent",
+                "inbox"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sentiment data list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/customer_pulse_entry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/customer_pulse/summary": {
+      "get": {
+        "tags": [
+          "Customer Pulse"
+        ],
+        "operationId": "getCustomerPulseSummary",
+        "summary": "Sentiment summary",
+        "description": "Returns aggregate sentiment summary counts and percentages.",
+        "responses": {
+          "200": {
+            "description": "Sentiment summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/customer_pulse_summary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/customer_pulse/metrics": {
+      "get": {
+        "tags": [
+          "Customer Pulse"
+        ],
+        "operationId": "getCustomerPulseMetrics",
+        "summary": "Pulse metrics",
+        "description": "Returns detailed Customer Pulse metrics including trend data.",
+        "responses": {
+          "200": {
+            "description": "Pulse metrics data"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/customer_pulse/agent_performance": {
+      "get": {
+        "tags": [
+          "Customer Pulse"
+        ],
+        "operationId": "getCustomerPulseAgentPerformance",
+        "summary": "Agent performance",
+        "description": "Returns sentiment-based performance metrics per agent.",
+        "responses": {
+          "200": {
+            "description": "Agent performance data"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/customer_pulse/settings": {
+      "put": {
+        "tags": [
+          "Customer Pulse"
+        ],
+        "operationId": "updateCustomerPulseSettings",
+        "summary": "Update pulse settings",
+        "description": "Updates Customer Pulse configuration such as escalation thresholds.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "escalation_enabled": {
+                    "type": "boolean",
+                    "description": "Enable automatic escalation for negative sentiment"
+                  },
+                  "escalation_threshold": {
+                    "type": "number",
+                    "format": "float",
+                    "description": "Sentiment score threshold for escalation (0.0 \u2013 1.0)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/customer_pulse/bulk_analyze": {
+      "post": {
+        "tags": [
+          "Customer Pulse"
+        ],
+        "operationId": "bulkAnalyzeCustomerPulse",
+        "summary": "Bulk analyze conversations",
+        "description": "Triggers bulk sentiment analysis for past conversations.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "integer",
+                    "description": "Number of past days to analyze",
+                    "example": 30
+                  },
+                  "inbox_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "description": "Limit analysis to these inbox IDs (omit for all)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk analysis enqueued"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v2/accounts/{account_id}/leads_reports": {
+      "get": {
+        "tags": [
+          "Leads Reports"
+        ],
+        "operationId": "getLeadsReportsTimeseries",
+        "summary": "Leads timeseries",
+        "description": "Returns time-series data for leads pipeline activity.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leads timeseries data"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v2/accounts/{account_id}/leads_reports/summary": {
+      "get": {
+        "tags": [
+          "Leads Reports"
+        ],
+        "operationId": "getLeadsReportsSummary",
+        "summary": "Leads summary",
+        "description": "Returns aggregate leads pipeline summary metrics.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leads summary data"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v2/accounts/{account_id}/leads_reports/export_csv": {
+      "get": {
+        "tags": [
+          "Leads Reports"
+        ],
+        "operationId": "exportLeadsReportsCsv",
+        "summary": "Export leads CSV",
+        "description": "Downloads a CSV file with detailed leads pipeline data.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV file download",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the resource"
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed \u2013 invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity \u2013 validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "campaign_analytics": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "campaign_id": {
+            "type": "integer"
+          },
+          "total_sent": {
+            "type": "integer"
+          },
+          "total_delivered": {
+            "type": "integer"
+          },
+          "total_read": {
+            "type": "integer"
+          },
+          "total_failed": {
+            "type": "integer"
+          },
+          "delivery_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "read_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "executions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "execution_id": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "started_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "completed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "campaign_scheduler": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "campaign_id": {
+            "type": "integer"
+          },
+          "schedule_type": {
+            "type": "string",
+            "enum": [
+              "once",
+              "recurring"
+            ]
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Asia/Riyadh"
+          },
+          "recurrence_pattern": {
+            "type": "string",
+            "example": "weekly"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "campaign_scheduler_create": {
+        "type": "object",
+        "required": [
+          "campaign_id",
+          "schedule_type",
+          "scheduled_at",
+          "timezone"
+        ],
+        "properties": {
+          "campaign_id": {
+            "type": "integer"
+          },
+          "schedule_type": {
+            "type": "string",
+            "enum": [
+              "once",
+              "recurring"
+            ]
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Asia/Riyadh"
+          },
+          "recurrence_pattern": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "description": "Required when schedule_type is recurring"
+          }
+        }
+      },
+      "campaign_contact_list": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "contacts_count": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "campaign_contact_list_create": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of phone numbers or contact IDs"
+          }
+        }
+      },
+      "whatsapp_template": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MARKETING",
+              "UTILITY",
+              "AUTHENTICATION"
+            ]
+          },
+          "language": {
+            "type": "string",
+            "example": "en_US"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "pending",
+              "approved",
+              "rejected",
+              "paused"
+            ]
+          },
+          "whatsapp_channel_id": {
+            "type": "integer"
+          },
+          "parameter_format": {
+            "type": "string",
+            "enum": [
+              "named",
+              "positional"
+            ]
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/whatsapp_template_component"
+            }
+          },
+          "variable_mappings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "whatsapp_template_create": {
+        "type": "object",
+        "required": [
+          "name",
+          "category",
+          "language",
+          "whatsapp_channel_id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MARKETING",
+              "UTILITY",
+              "AUTHENTICATION"
+            ]
+          },
+          "language": {
+            "type": "string",
+            "example": "en_US"
+          },
+          "whatsapp_channel_id": {
+            "type": "integer"
+          },
+          "parameter_format": {
+            "type": "string",
+            "enum": [
+              "named",
+              "positional"
+            ],
+            "description": "Variable format style for body placeholders"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/whatsapp_template_component"
+            }
+          },
+          "variable_mappings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Map of variable names to contact attribute paths"
+          }
+        }
+      },
+      "whatsapp_template_component": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "HEADER",
+              "BODY",
+              "FOOTER",
+              "BUTTONS",
+              "CAROUSEL"
+            ]
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "TEXT",
+              "IMAGE",
+              "VIDEO",
+              "DOCUMENT",
+              "AUDIO"
+            ],
+            "description": "Applicable to HEADER type"
+          },
+          "text": {
+            "type": "string"
+          },
+          "buttons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "QUICK_REPLY",
+                    "URL",
+                    "PHONE_NUMBER",
+                    "COPY_CODE"
+                  ]
+                },
+                "text": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "phone_number": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "cards": {
+            "type": "array",
+            "description": "Cards for CAROUSEL component type",
+            "items": {
+              "type": "object",
+              "properties": {
+                "components": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/whatsapp_template_component"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "whatsapp_flow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "deprecated",
+              "blocked"
+            ]
+          },
+          "endpoint_uri": {
+            "type": "string"
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "meta_flow_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "whatsapp_flow_create": {
+        "type": "object",
+        "required": [
+          "name",
+          "inbox_id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "endpoint_uri": {
+            "type": "string"
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "flow_json": {
+            "type": "object",
+            "description": "WhatsApp Flow JSON schema definition"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "appointment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "service_id": {
+            "type": "integer"
+          },
+          "provider_id": {
+            "type": "integer"
+          },
+          "appointment_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "completed",
+              "cancelled",
+              "rescheduled"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          },
+          "cancellation_reason": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "appointment_create": {
+        "type": "object",
+        "required": [
+          "contact_id",
+          "service_id",
+          "provider_id",
+          "appointment_at"
+        ],
+        "properties": {
+          "contact_id": {
+            "type": "integer"
+          },
+          "service_id": {
+            "type": "integer"
+          },
+          "provider_id": {
+            "type": "integer"
+          },
+          "appointment_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "appointment_service": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "duration_minutes": {
+            "type": "integer"
+          },
+          "default_price": {
+            "type": "number",
+            "format": "float"
+          },
+          "color": {
+            "type": "string",
+            "example": "#3B82F6"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "appointment_service_create": {
+        "type": "object",
+        "required": [
+          "name",
+          "duration_minutes"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "duration_minutes": {
+            "type": "integer"
+          },
+          "default_price": {
+            "type": "number",
+            "format": "float"
+          },
+          "color": {
+            "type": "string",
+            "example": "#3B82F6"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "provider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "example": "#10B981"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "service_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "provider_create": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "example": "#10B981"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          },
+          "service_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "IDs of services this provider offers"
+          }
+        }
+      },
+      "scheduled_message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "content": {
+            "type": "string"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "sent",
+              "cancelled",
+              "failed"
+            ]
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "conversation_id": {
+            "type": "integer"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "template_params": {
+            "type": "object"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "scheduled_message_create": {
+        "type": "object",
+        "required": [
+          "scheduled_at",
+          "inbox_id"
+        ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Plain text message content"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "conversation_id": {
+            "type": "integer"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "template_params": {
+            "type": "object",
+            "description": "WhatsApp template parameters if sending a template message"
+          }
+        }
+      },
+      "project": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "example": "#6366F1"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "completed",
+              "archived",
+              "on_hold"
+            ]
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "company_id": {
+            "type": "integer"
+          },
+          "tasks_count": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "project_create": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "example": "#6366F1"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "completed",
+              "archived",
+              "on_hold"
+            ]
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "company_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "project_task": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "project_id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "todo",
+              "in_progress",
+              "done"
+            ]
+          },
+          "assignee_id": {
+            "type": "integer"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "project_task_create": {
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "todo",
+              "in_progress",
+              "done"
+            ],
+            "default": "todo"
+          },
+          "assignee_id": {
+            "type": "integer"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "internal_channel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "channel_type": {
+            "type": "string",
+            "enum": [
+              "public",
+              "private",
+              "direct"
+            ]
+          },
+          "member_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "internal_channel_create": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "channel_type": {
+            "type": "string",
+            "enum": [
+              "public",
+              "private",
+              "direct"
+            ],
+            "default": "public"
+          },
+          "member_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "internal_channel_message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "channel_id": {
+            "type": "integer"
+          },
+          "content": {
+            "type": "string"
+          },
+          "author_id": {
+            "type": "integer"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "customer_pulse_entry": {
+        "type": "object",
+        "properties": {
+          "conversation_id": {
+            "type": "integer"
+          },
+          "sentiment": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "neutral",
+              "negative"
+            ]
+          },
+          "score": {
+            "type": "number",
+            "format": "float"
+          },
+          "analyzed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "agent_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "customer_pulse_summary": {
+        "type": "object",
+        "properties": {
+          "total_analyzed": {
+            "type": "integer"
+          },
+          "positive_count": {
+            "type": "integer"
+          },
+          "neutral_count": {
+            "type": "integer"
+          },
+          "negative_count": {
+            "type": "integer"
+          },
+          "positive_percentage": {
+            "type": "number",
+            "format": "float"
+          },
+          "neutral_percentage": {
+            "type": "number",
+            "format": "float"
+          },
+          "negative_percentage": {
+            "type": "number",
+            "format": "float"
+          },
+          "average_score": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "outbound_report_timeseries": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "integer"
+                },
+                "sent": {
+                  "type": "integer"
+                },
+                "delivered": {
+                  "type": "integer"
+                },
+                "read": {
+                  "type": "integer"
+                },
+                "failed": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "outbound_report_summary": {
+        "type": "object",
+        "properties": {
+          "total_sent": {
+            "type": "integer"
+          },
+          "total_delivered": {
+            "type": "integer"
+          },
+          "total_read": {
+            "type": "integer"
+          },
+          "total_failed": {
+            "type": "integer"
+          },
+          "delivery_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "read_rate": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "template_performance": {
+        "type": "object",
+        "properties": {
+          "template_name": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "total_sent": {
+            "type": "integer"
+          },
+          "total_delivered": {
+            "type": "integer"
+          },
+          "total_read": {
+            "type": "integer"
+          },
+          "total_failed": {
+            "type": "integer"
+          },
+          "delivery_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "read_rate": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      }
+    }
+  }
+}

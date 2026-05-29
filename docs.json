@@ -106,7 +106,7 @@
               "Scheduled Messages",
               "Outbound Reports"
             ],
-            "openapi": "/api-reference/voxys_features_swagger.json"
+            "openapi": "/api-reference/voxys_campaigns_swagger.json"
           },
           {
             "group": "WhatsApp APIs",
@@ -115,7 +115,7 @@
               "WhatsApp Templates",
               "WhatsApp Flows"
             ],
-            "openapi": "/api-reference/voxys_features_swagger.json"
+            "openapi": "/api-reference/voxys_whatsapp_swagger.json"
           },
           {
             "group": "Appointments",
@@ -125,7 +125,7 @@
               "Appointment Services",
               "Providers"
             ],
-            "openapi": "/api-reference/voxys_features_swagger.json"
+            "openapi": "/api-reference/voxys_appointments_swagger.json"
           },
           {
             "group": "Projects & Collaboration",
@@ -134,7 +134,7 @@
               "Projects",
               "Internal Channels"
             ],
-            "openapi": "/api-reference/voxys_features_swagger.json"
+            "openapi": "/api-reference/voxys_projects_swagger.json"
           },
           {
             "group": "AI & Analytics",
@@ -143,7 +143,7 @@
               "Customer Pulse",
               "Leads Reports"
             ],
-            "openapi": "/api-reference/voxys_features_swagger.json"
+            "openapi": "/api-reference/voxys_analytics_swagger.json"
           }
         ]
       }

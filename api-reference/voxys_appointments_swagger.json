@@ -1,0 +1,1723 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect \u2013 Extended Features",
+    "description": "API documentation for Voxys Connect extended features: Campaigns, WhatsApp Templates & Flows, Appointments, Scheduled Messages, Projects, Internal Channels, Customer Pulse, and Reports.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Appointments",
+      "tags": [
+        "Appointments",
+        "Appointment Services",
+        "Providers"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Appointments",
+      "description": "Appointment booking, confirmation, rescheduling, and availability"
+    },
+    {
+      "name": "Appointment Services",
+      "description": "Manage bookable services offered to contacts"
+    },
+    {
+      "name": "Providers",
+      "description": "Manage service providers for appointment booking"
+    }
+  ],
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/appointments": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "operationId": "listAppointments",
+        "summary": "List appointments",
+        "description": "Returns appointments with optional filters.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "confirmed",
+                "completed",
+                "cancelled",
+                "rescheduled"
+              ]
+            }
+          },
+          {
+            "name": "provider_id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "service_id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter by specific date (YYYY-MM-DD)"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Range start date"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Range end date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointments list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/appointment"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Appointments"
+        ],
+        "operationId": "createAppointment",
+        "summary": "Create appointment",
+        "description": "Creates a new appointment.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/appointment_create"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Appointment created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appointment"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/appointments/availability": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "operationId": "checkAppointmentAvailability",
+        "summary": "Check availability",
+        "description": "Returns available time slots for a provider and service on a given date.",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "service_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available time slots",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available_slots": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/appointments/{id}/confirm": {
+      "post": {
+        "tags": [
+          "Appointments"
+        ],
+        "operationId": "confirmAppointment",
+        "summary": "Confirm appointment",
+        "description": "Confirms a pending appointment.",
+        "responses": {
+          "200": {
+            "description": "Appointment confirmed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appointment"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/appointments/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Appointments"
+        ],
+        "operationId": "cancelAppointment",
+        "summary": "Cancel appointment",
+        "description": "Cancels an appointment with an optional reason.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cancellation_reason": {
+                    "type": "string",
+                    "description": "Reason for cancellation"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Appointment cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appointment"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/appointments/{id}/reschedule": {
+      "post": {
+        "tags": [
+          "Appointments"
+        ],
+        "operationId": "rescheduleAppointment",
+        "summary": "Reschedule appointment",
+        "description": "Reschedules an existing appointment to a new time.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "appointment_at"
+                ],
+                "properties": {
+                  "appointment_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Appointment rescheduled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appointment"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/appointments/{id}/complete": {
+      "post": {
+        "tags": [
+          "Appointments"
+        ],
+        "operationId": "completeAppointment",
+        "summary": "Complete appointment",
+        "description": "Marks an appointment as completed.",
+        "responses": {
+          "200": {
+            "description": "Appointment completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appointment"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/appointment_services": {
+      "get": {
+        "tags": [
+          "Appointment Services"
+        ],
+        "operationId": "listAppointmentServices",
+        "summary": "List appointment services",
+        "description": "Returns all bookable services for the account.",
+        "responses": {
+          "200": {
+            "description": "Services list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/appointment_service"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Appointment Services"
+        ],
+        "operationId": "createAppointmentService",
+        "summary": "Create appointment service",
+        "description": "Creates a new bookable service.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/appointment_service_create"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Service created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appointment_service"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/appointment_services/{id}": {
+      "patch": {
+        "tags": [
+          "Appointment Services"
+        ],
+        "operationId": "updateAppointmentService",
+        "summary": "Update appointment service",
+        "description": "Updates an existing appointment service.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/appointment_service_create"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Service updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appointment_service"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/providers": {
+      "get": {
+        "tags": [
+          "Providers"
+        ],
+        "operationId": "listProviders",
+        "summary": "List providers",
+        "description": "Returns all service providers for the account.",
+        "responses": {
+          "200": {
+            "description": "Providers list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/provider"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Providers"
+        ],
+        "operationId": "createProvider",
+        "summary": "Create provider",
+        "description": "Creates a new service provider.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/provider_create"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Provider created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/provider"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/providers/{id}": {
+      "patch": {
+        "tags": [
+          "Providers"
+        ],
+        "operationId": "updateProvider",
+        "summary": "Update provider",
+        "description": "Updates an existing service provider.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/provider_create"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Provider updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/provider"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the resource"
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed \u2013 invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity \u2013 validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "campaign_analytics": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "campaign_id": {
+            "type": "integer"
+          },
+          "total_sent": {
+            "type": "integer"
+          },
+          "total_delivered": {
+            "type": "integer"
+          },
+          "total_read": {
+            "type": "integer"
+          },
+          "total_failed": {
+            "type": "integer"
+          },
+          "delivery_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "read_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "executions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "execution_id": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "started_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "completed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "campaign_scheduler": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "campaign_id": {
+            "type": "integer"
+          },
+          "schedule_type": {
+            "type": "string",
+            "enum": [
+              "once",
+              "recurring"
+            ]
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Asia/Riyadh"
+          },
+          "recurrence_pattern": {
+            "type": "string",
+            "example": "weekly"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "campaign_scheduler_create": {
+        "type": "object",
+        "required": [
+          "campaign_id",
+          "schedule_type",
+          "scheduled_at",
+          "timezone"
+        ],
+        "properties": {
+          "campaign_id": {
+            "type": "integer"
+          },
+          "schedule_type": {
+            "type": "string",
+            "enum": [
+              "once",
+              "recurring"
+            ]
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Asia/Riyadh"
+          },
+          "recurrence_pattern": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "description": "Required when schedule_type is recurring"
+          }
+        }
+      },
+      "campaign_contact_list": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "contacts_count": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "campaign_contact_list_create": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of phone numbers or contact IDs"
+          }
+        }
+      },
+      "whatsapp_template": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MARKETING",
+              "UTILITY",
+              "AUTHENTICATION"
+            ]
+          },
+          "language": {
+            "type": "string",
+            "example": "en_US"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "pending",
+              "approved",
+              "rejected",
+              "paused"
+            ]
+          },
+          "whatsapp_channel_id": {
+            "type": "integer"
+          },
+          "parameter_format": {
+            "type": "string",
+            "enum": [
+              "named",
+              "positional"
+            ]
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/whatsapp_template_component"
+            }
+          },
+          "variable_mappings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "whatsapp_template_create": {
+        "type": "object",
+        "required": [
+          "name",
+          "category",
+          "language",
+          "whatsapp_channel_id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MARKETING",
+              "UTILITY",
+              "AUTHENTICATION"
+            ]
+          },
+          "language": {
+            "type": "string",
+            "example": "en_US"
+          },
+          "whatsapp_channel_id": {
+            "type": "integer"
+          },
+          "parameter_format": {
+            "type": "string",
+            "enum": [
+              "named",
+              "positional"
+            ],
+            "description": "Variable format style for body placeholders"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/whatsapp_template_component"
+            }
+          },
+          "variable_mappings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Map of variable names to contact attribute paths"
+          }
+        }
+      },
+      "whatsapp_template_component": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "HEADER",
+              "BODY",
+              "FOOTER",
+              "BUTTONS",
+              "CAROUSEL"
+            ]
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "TEXT",
+              "IMAGE",
+              "VIDEO",
+              "DOCUMENT",
+              "AUDIO"
+            ],
+            "description": "Applicable to HEADER type"
+          },
+          "text": {
+            "type": "string"
+          },
+          "buttons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "QUICK_REPLY",
+                    "URL",
+                    "PHONE_NUMBER",
+                    "COPY_CODE"
+                  ]
+                },
+                "text": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "phone_number": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "cards": {
+            "type": "array",
+            "description": "Cards for CAROUSEL component type",
+            "items": {
+              "type": "object",
+              "properties": {
+                "components": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/whatsapp_template_component"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "whatsapp_flow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "deprecated",
+              "blocked"
+            ]
+          },
+          "endpoint_uri": {
+            "type": "string"
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "meta_flow_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "whatsapp_flow_create": {
+        "type": "object",
+        "required": [
+          "name",
+          "inbox_id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "endpoint_uri": {
+            "type": "string"
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "flow_json": {
+            "type": "object",
+            "description": "WhatsApp Flow JSON schema definition"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "appointment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "service_id": {
+            "type": "integer"
+          },
+          "provider_id": {
+            "type": "integer"
+          },
+          "appointment_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "completed",
+              "cancelled",
+              "rescheduled"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          },
+          "cancellation_reason": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "appointment_create": {
+        "type": "object",
+        "required": [
+          "contact_id",
+          "service_id",
+          "provider_id",
+          "appointment_at"
+        ],
+        "properties": {
+          "contact_id": {
+            "type": "integer"
+          },
+          "service_id": {
+            "type": "integer"
+          },
+          "provider_id": {
+            "type": "integer"
+          },
+          "appointment_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "appointment_service": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "duration_minutes": {
+            "type": "integer"
+          },
+          "default_price": {
+            "type": "number",
+            "format": "float"
+          },
+          "color": {
+            "type": "string",
+            "example": "#3B82F6"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "appointment_service_create": {
+        "type": "object",
+        "required": [
+          "name",
+          "duration_minutes"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "duration_minutes": {
+            "type": "integer"
+          },
+          "default_price": {
+            "type": "number",
+            "format": "float"
+          },
+          "color": {
+            "type": "string",
+            "example": "#3B82F6"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "provider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "example": "#10B981"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "service_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "provider_create": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "example": "#10B981"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          },
+          "service_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "IDs of services this provider offers"
+          }
+        }
+      },
+      "scheduled_message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "content": {
+            "type": "string"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "sent",
+              "cancelled",
+              "failed"
+            ]
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "conversation_id": {
+            "type": "integer"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "template_params": {
+            "type": "object"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "scheduled_message_create": {
+        "type": "object",
+        "required": [
+          "scheduled_at",
+          "inbox_id"
+        ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Plain text message content"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "conversation_id": {
+            "type": "integer"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "template_params": {
+            "type": "object",
+            "description": "WhatsApp template parameters if sending a template message"
+          }
+        }
+      },
+      "project": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "example": "#6366F1"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "completed",
+              "archived",
+              "on_hold"
+            ]
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "company_id": {
+            "type": "integer"
+          },
+          "tasks_count": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "project_create": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "example": "#6366F1"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "completed",
+              "archived",
+              "on_hold"
+            ]
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "company_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "project_task": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "project_id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "todo",
+              "in_progress",
+              "done"
+            ]
+          },
+          "assignee_id": {
+            "type": "integer"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "project_task_create": {
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "todo",
+              "in_progress",
+              "done"
+            ],
+            "default": "todo"
+          },
+          "assignee_id": {
+            "type": "integer"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "internal_channel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "channel_type": {
+            "type": "string",
+            "enum": [
+              "public",
+              "private",
+              "direct"
+            ]
+          },
+          "member_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "internal_channel_create": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "channel_type": {
+            "type": "string",
+            "enum": [
+              "public",
+              "private",
+              "direct"
+            ],
+            "default": "public"
+          },
+          "member_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "internal_channel_message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "channel_id": {
+            "type": "integer"
+          },
+          "content": {
+            "type": "string"
+          },
+          "author_id": {
+            "type": "integer"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "customer_pulse_entry": {
+        "type": "object",
+        "properties": {
+          "conversation_id": {
+            "type": "integer"
+          },
+          "sentiment": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "neutral",
+              "negative"
+            ]
+          },
+          "score": {
+            "type": "number",
+            "format": "float"
+          },
+          "analyzed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "agent_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "customer_pulse_summary": {
+        "type": "object",
+        "properties": {
+          "total_analyzed": {
+            "type": "integer"
+          },
+          "positive_count": {
+            "type": "integer"
+          },
+          "neutral_count": {
+            "type": "integer"
+          },
+          "negative_count": {
+            "type": "integer"
+          },
+          "positive_percentage": {
+            "type": "number",
+            "format": "float"
+          },
+          "neutral_percentage": {
+            "type": "number",
+            "format": "float"
+          },
+          "negative_percentage": {
+            "type": "number",
+            "format": "float"
+          },
+          "average_score": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "outbound_report_timeseries": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "integer"
+                },
+                "sent": {
+                  "type": "integer"
+                },
+                "delivered": {
+                  "type": "integer"
+                },
+                "read": {
+                  "type": "integer"
+                },
+                "failed": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "outbound_report_summary": {
+        "type": "object",
+        "properties": {
+          "total_sent": {
+            "type": "integer"
+          },
+          "total_delivered": {
+            "type": "integer"
+          },
+          "total_read": {
+            "type": "integer"
+          },
+          "total_failed": {
+            "type": "integer"
+          },
+          "delivery_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "read_rate": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "template_performance": {
+        "type": "object",
+        "properties": {
+          "template_name": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "total_sent": {
+            "type": "integer"
+          },
+          "total_delivered": {
+            "type": "integer"
+          },
+          "total_read": {
+            "type": "integer"
+          },
+          "total_failed": {
+            "type": "integer"
+          },
+          "delivery_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "read_rate": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      }
+    }
+  }
+}
