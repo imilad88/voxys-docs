@@ -68,13 +68,13 @@
               "Teams",
               "Webhooks"
             ],
-            "openapi": "https://raw.githubusercontent.com/chatwoot/chatwoot/develop/swagger/tag_groups/application_swagger.json"
+            "openapi": "/api-reference/application_swagger.json"
           },
           {
             "group": "Platform APIs",
             "description": "APIs for managing platform aspects of Voxys Connect",
             "includeTags": ["Accounts", "Account Users", "AgentBots", "Users"],
-            "openapi": "https://raw.githubusercontent.com/chatwoot/chatwoot/develop/swagger/tag_groups/platform_swagger.json"
+            "openapi": "/api-reference/platform_swagger.json"
           },
           {
             "group": "Client APIs",
@@ -84,13 +84,13 @@
               "Conversations API",
               "Messages API"
             ],
-            "openapi": "https://raw.githubusercontent.com/chatwoot/chatwoot/develop/swagger/tag_groups/client_swagger.json"
+            "openapi": "/api-reference/client_swagger.json"
           },
           {
             "group": "Other APIs",
             "description": "Additional APIs",
             "includeTags": ["CSAT Survey Page"],
-            "openapi": "https://raw.githubusercontent.com/chatwoot/chatwoot/develop/swagger/tag_groups/other_swagger.json"
+            "openapi": "/api-reference/other_swagger.json"
           }
         ]
       }
