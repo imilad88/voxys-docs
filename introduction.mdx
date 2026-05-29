@@ -6,51 +6,84 @@ sidebarTitle: Introduction
 
 ## What You'll Find Here
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card
-    title="API Reference"
+    title="Application APIs"
     icon="square-terminal"
     href="/api-reference/introduction"
   >
-    Build powerful integrations with our comprehensive REST APIs
+    Manage agents, contacts, conversations, inboxes, and more
   </Card>
   <Card
-    title="WhatsApp Integration"
-    icon="message"
-    href="/api-reference/introduction"
+    title="CRM APIs"
+    icon="building"
+    href="/api-reference/introduction#crm-apis"
   >
-    Send messages, manage templates, and automate WhatsApp workflows
+    Leads, companies, pipelines, follow-up tasks, and deals
+  </Card>
+  <Card
+    title="WhatsApp APIs"
+    icon="message"
+    href="/api-reference/introduction#whatsapp-apis"
+  >
+    Templates, flows, catalogs, and message scheduling
   </Card>
 </CardGroup>
 
-## Getting Started
+<CardGroup cols={3}>
+  <Card
+    title="Campaigns"
+    icon="megaphone"
+    href="/api-reference/introduction#campaigns--messaging"
+  >
+    Campaign management, scheduling, audience, and analytics
+  </Card>
+  <Card
+    title="Appointments"
+    icon="calendar"
+    href="/api-reference/introduction#appointments"
+  >
+    Booking, services, providers, and availability
+  </Card>
+  <Card
+    title="AI & Analytics"
+    icon="brain"
+    href="/api-reference/introduction#ai--analytics"
+  >
+    Customer Pulse sentiment analysis and reporting
+  </Card>
+</CardGroup>
 
-### Build Integrations
-Explore our [API Reference](/api-reference/introduction) with three categories of APIs:
-- **Application APIs** - Manage accounts, agents, conversations, and contacts
-- **Platform APIs** - Administrative control for your installation
-- **Client APIs** - Build custom chat interfaces
+## Authentication
 
-### Authentication
-All API requests require an `api_access_token` header. You can find your token in:
+All API requests require an `api_access_token` header.
+
+```bash
+curl --request GET \
+  --url https://connect.voxys.ai/api/v1/accounts/{account_id}/conversations \
+  --header 'api_access_token: <your-token>'
+```
+
+You can find your token in:
 - **User tokens**: Profile Settings > Access Token
 - **Agent Bot tokens**: Settings > Integrations > Agent Bots
-- **Platform tokens**: Super Admin > Platform Apps
+
+## Base URL
+
+```
+https://connect.voxys.ai/api/v1/accounts/{account_id}/
+```
 
 ## Why Voxys Connect?
 
 - **Omnichannel**: WhatsApp, Email, SMS, Voice, Social Media, and Web Chat in one platform
 - **AI-Powered**: Captain AI with Arabic dialect detection and sentiment analysis
+- **CRM Built-in**: Leads, companies, pipelines, and deal management
 - **Workflow Automation**: Integrated Typebot and n8n for conversational workflows
 - **MENA-Focused**: Arabic language support, regional payment gateways
-- **Rich APIs**: Comprehensive REST APIs and webhook system for custom integrations
 
 ## Support
 
 - **Website**: [voxys.ai](https://www.voxys.ai)
 - **Help Center**: [docs.voxys.ai](https://docs.voxys.ai)
 - **Email**: support@voxys.ai
-
----
-
-Ready to build? Head to the [API Reference](/api-reference/introduction) to get started!
