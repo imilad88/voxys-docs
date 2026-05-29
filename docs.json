@@ -91,6 +91,65 @@
             "description": "Additional APIs",
             "includeTags": ["CSAT Survey Page"],
             "openapi": "/api-reference/other_swagger.json"
+          },
+          {
+            "group": "CRM APIs",
+            "description": "Leads, companies, pipelines, tasks, and conversation CRM",
+            "includeTags": [
+              "Leads",
+              "Companies",
+              "Pipelines",
+              "Follow-up Tasks",
+              "Conversation CRM"
+            ],
+            "openapi": "/api-reference/voxys_crm_swagger.json"
+          },
+          {
+            "group": "Campaigns & Messaging",
+            "description": "Campaign management, scheduling, audience, and outbound reports",
+            "includeTags": [
+              "Campaigns Extended",
+              "Scheduled Messages",
+              "Outbound Reports"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
+          },
+          {
+            "group": "WhatsApp APIs",
+            "description": "WhatsApp templates, flows, and catalogs",
+            "includeTags": [
+              "WhatsApp Templates",
+              "WhatsApp Flows"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
+          },
+          {
+            "group": "Appointments",
+            "description": "Appointment booking, services, providers, and reminders",
+            "includeTags": [
+              "Appointments",
+              "Appointment Services",
+              "Providers"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
+          },
+          {
+            "group": "Projects & Collaboration",
+            "description": "Project management and internal team channels",
+            "includeTags": [
+              "Projects",
+              "Internal Channels"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
+          },
+          {
+            "group": "AI & Analytics",
+            "description": "Customer sentiment analysis and leads reporting",
+            "includeTags": [
+              "Customer Pulse",
+              "Leads Reports"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
           }
         ]
       }

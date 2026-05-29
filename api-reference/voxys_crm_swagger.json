@@ -1,0 +1,2103 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect - CRM APIs",
+    "description": "CRM API documentation for Voxys Connect, covering Leads, Companies, Pipelines, Follow-up Tasks, and Conversation CRM.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "CRM",
+      "tags": ["Leads", "Companies", "Pipelines", "Follow-up Tasks", "Conversation CRM"]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Leads",
+      "description": "Manage CRM leads including creation, status changes, notes, and conversion."
+    },
+    {
+      "name": "Companies",
+      "description": "Manage companies, their contacts, timelines, and duplicate merging."
+    },
+    {
+      "name": "Pipelines",
+      "description": "Manage sales funnels (pipelines), their stages, and kanban cards."
+    },
+    {
+      "name": "Follow-up Tasks",
+      "description": "Create and manage follow-up tasks attached to leads, deals, or conversations."
+    },
+    {
+      "name": "Conversation CRM",
+      "description": "CRM panel within a conversation: link pipelines, leads, and convert to deal."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "API access token for authentication. Obtain from your Voxys Connect profile settings."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "The numeric ID of the account."
+      },
+      "page": {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 1
+        },
+        "description": "Page number for pagination."
+      },
+      "per_page": {
+        "name": "per_page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 25,
+          "maximum": 100
+        },
+        "description": "Number of records per page."
+      }
+    },
+    "schemas": {
+      "error_response": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Unauthorized"
+          }
+        }
+      },
+      "validation_error": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "example": { "name": ["can't be blank"] }
+          }
+        }
+      },
+      "custom_attributes": {
+        "type": "object",
+        "description": "Flexible key-value map of custom attributes defined for the account.",
+        "additionalProperties": true,
+        "example": { "industry": "Technology", "annual_revenue": 500000 }
+      },
+      "agent_summary": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "Jane Smith" },
+          "email": { "type": "string", "format": "email", "example": "jane@example.com" },
+          "avatar_url": { "type": "string", "format": "uri", "nullable": true }
+        }
+      },
+      "company_summary": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 10 },
+          "name": { "type": "string", "example": "Acme Corp" },
+          "domain": { "type": "string", "example": "acme.com", "nullable": true }
+        }
+      },
+      "lead": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 42 },
+          "custom_name": { "type": "string", "example": "Enterprise Deal - Q3" },
+          "status": {
+            "type": "string",
+            "enum": ["open", "won", "lost", "snoozed"],
+            "example": "open"
+          },
+          "lead_value": { "type": "number", "format": "float", "nullable": true, "example": 15000.0 },
+          "lead_currency": { "type": "string", "nullable": true, "example": "USD" },
+          "position": { "type": "integer", "nullable": true, "example": 1 },
+          "notes": { "type": "string", "nullable": true, "example": "Prospect from trade show" },
+          "assigned_agent": { "$ref": "#/components/schemas/agent_summary", "nullable": true },
+          "company": { "$ref": "#/components/schemas/company_summary", "nullable": true },
+          "conversation_id": { "type": "integer", "nullable": true, "example": 100 },
+          "custom_attributes": { "$ref": "#/components/schemas/custom_attributes" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "lead_create_payload": {
+        "type": "object",
+        "properties": {
+          "custom_name": { "type": "string", "example": "Enterprise Deal - Q3" },
+          "lead_value": { "type": "number", "format": "float", "nullable": true, "example": 15000.0 },
+          "lead_currency": { "type": "string", "nullable": true, "example": "USD" },
+          "assigned_agent_id": { "type": "integer", "nullable": true, "example": 1 },
+          "position": { "type": "integer", "nullable": true, "example": 1 },
+          "conversation_id": { "type": "integer", "nullable": true, "example": 100 },
+          "company_id": { "type": "integer", "nullable": true, "example": 10 },
+          "custom_attributes": { "$ref": "#/components/schemas/custom_attributes" }
+        }
+      },
+      "lead_update_payload": {
+        "type": "object",
+        "properties": {
+          "custom_name": { "type": "string", "example": "Updated Deal Name" },
+          "lead_value": { "type": "number", "format": "float", "nullable": true },
+          "lead_currency": { "type": "string", "nullable": true },
+          "assigned_agent_id": { "type": "integer", "nullable": true },
+          "position": { "type": "integer", "nullable": true },
+          "conversation_id": { "type": "integer", "nullable": true },
+          "company_id": { "type": "integer", "nullable": true },
+          "custom_attributes": { "$ref": "#/components/schemas/custom_attributes" }
+        }
+      },
+      "lead_status_payload": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["open", "won", "lost", "snoozed"],
+            "example": "won"
+          },
+          "notes": { "type": "string", "nullable": true, "example": "Closed deal after final negotiation." }
+        }
+      },
+      "lead_bulk_payload": {
+        "type": "object",
+        "required": ["lead_ids", "action_type"],
+        "properties": {
+          "lead_ids": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "example": [1, 2, 3]
+          },
+          "action_type": {
+            "type": "string",
+            "enum": ["assign", "status_change", "delete"],
+            "example": "assign"
+          },
+          "params": {
+            "type": "object",
+            "description": "Additional params depending on action_type, e.g. {\"assigned_agent_id\": 5} or {\"status\": \"won\"}",
+            "additionalProperties": true,
+            "example": { "assigned_agent_id": 5 }
+          }
+        }
+      },
+      "lead_convert_payload": {
+        "type": "object",
+        "required": ["funnel_id"],
+        "properties": {
+          "funnel_id": { "type": "integer", "example": 3 },
+          "funnel_stage_id": { "type": "integer", "nullable": true, "example": 7 }
+        }
+      },
+      "lead_stats": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "integer", "example": 120 },
+          "open": { "type": "integer", "example": 80 },
+          "won": { "type": "integer", "example": 25 },
+          "lost": { "type": "integer", "example": 15 },
+          "total_value": { "type": "number", "format": "float", "example": 500000.0 },
+          "won_value": { "type": "number", "format": "float", "example": 125000.0 }
+        }
+      },
+      "lead_note": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "content": { "type": "string", "example": "Called prospect, left voicemail." },
+          "author": { "$ref": "#/components/schemas/agent_summary" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "lead_note_create_payload": {
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+          "content": { "type": "string", "example": "Called prospect, left voicemail." }
+        }
+      },
+      "company": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 10 },
+          "name": { "type": "string", "example": "Acme Corp" },
+          "domain": { "type": "string", "nullable": true, "example": "acme.com" },
+          "description": { "type": "string", "nullable": true, "example": "Global leader in widgets." },
+          "custom_attributes": { "$ref": "#/components/schemas/custom_attributes" },
+          "contacts_count": { "type": "integer", "example": 5 },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "company_create_payload": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "example": "Acme Corp" },
+          "domain": { "type": "string", "nullable": true, "example": "acme.com" },
+          "description": { "type": "string", "nullable": true, "example": "Global leader in widgets." },
+          "custom_attributes": { "$ref": "#/components/schemas/custom_attributes" }
+        }
+      },
+      "company_update_payload": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "example": "Acme Corp Updated" },
+          "domain": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "custom_attributes": { "$ref": "#/components/schemas/custom_attributes" }
+        }
+      },
+      "company_merge_payload": {
+        "type": "object",
+        "required": ["target_company_id"],
+        "properties": {
+          "target_company_id": {
+            "type": "integer",
+            "description": "The ID of the company that will survive the merge. The source company will be deleted.",
+            "example": 15
+          }
+        }
+      },
+      "company_add_contact_payload": {
+        "type": "object",
+        "required": ["contact_id"],
+        "properties": {
+          "contact_id": { "type": "integer", "example": 200 }
+        }
+      },
+      "timeline_event": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "event_type": { "type": "string", "example": "lead_created" },
+          "description": { "type": "string", "example": "Lead 'Enterprise Deal' was created." },
+          "actor": { "$ref": "#/components/schemas/agent_summary", "nullable": true },
+          "occurred_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "contact_summary": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 200 },
+          "name": { "type": "string", "example": "John Doe" },
+          "email": { "type": "string", "format": "email", "nullable": true, "example": "john@acme.com" },
+          "phone_number": { "type": "string", "nullable": true, "example": "+19715552345" },
+          "avatar_url": { "type": "string", "format": "uri", "nullable": true }
+        }
+      },
+      "funnel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 3 },
+          "name": { "type": "string", "example": "Sales Pipeline" },
+          "description": { "type": "string", "nullable": true, "example": "Main B2B sales pipeline." },
+          "color": { "type": "string", "nullable": true, "example": "#4CAF50" },
+          "position": { "type": "integer", "example": 1 },
+          "is_public": { "type": "boolean", "example": true },
+          "is_active": { "type": "boolean", "example": true },
+          "stages_count": { "type": "integer", "example": 5 },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "funnel_create_payload": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "example": "Sales Pipeline" },
+          "description": { "type": "string", "nullable": true, "example": "Main B2B sales pipeline." },
+          "color": { "type": "string", "nullable": true, "example": "#4CAF50" },
+          "position": { "type": "integer", "nullable": true, "example": 1 },
+          "is_public": { "type": "boolean", "default": true },
+          "is_active": { "type": "boolean", "default": true }
+        }
+      },
+      "funnel_update_payload": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "color": { "type": "string", "nullable": true },
+          "position": { "type": "integer", "nullable": true },
+          "is_public": { "type": "boolean" },
+          "is_active": { "type": "boolean" }
+        }
+      },
+      "funnel_stats": {
+        "type": "object",
+        "properties": {
+          "total_cards": { "type": "integer", "example": 45 },
+          "total_value": { "type": "number", "format": "float", "example": 250000.0 },
+          "won_cards": { "type": "integer", "example": 12 },
+          "won_value": { "type": "number", "format": "float", "example": 80000.0 },
+          "lost_cards": { "type": "integer", "example": 5 },
+          "conversion_rate": { "type": "number", "format": "float", "example": 26.7 }
+        }
+      },
+      "funnel_stage": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 7 },
+          "funnel_id": { "type": "integer", "example": 3 },
+          "name": { "type": "string", "example": "Qualification" },
+          "color": { "type": "string", "nullable": true, "example": "#2196F3" },
+          "position": { "type": "integer", "example": 2 },
+          "chatwoot_status": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["open", "resolved", "pending", null],
+            "example": "open"
+          },
+          "cards_count": { "type": "integer", "example": 8 },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "funnel_stage_create_payload": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "example": "Qualification" },
+          "color": { "type": "string", "nullable": true, "example": "#2196F3" },
+          "position": { "type": "integer", "nullable": true, "example": 2 },
+          "chatwoot_status": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["open", "resolved", "pending"],
+            "example": "open"
+          }
+        }
+      },
+      "funnel_stage_reorder_payload": {
+        "type": "object",
+        "required": ["stage_ids"],
+        "properties": {
+          "stage_ids": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "description": "Ordered list of stage IDs representing the new order.",
+            "example": [7, 8, 9, 10, 11]
+          }
+        }
+      },
+      "funnel_card": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 55 },
+          "funnel_id": { "type": "integer", "example": 3 },
+          "funnel_stage_id": { "type": "integer", "example": 7 },
+          "lead": { "$ref": "#/components/schemas/lead" },
+          "position": { "type": "integer", "example": 1 },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "funnel_card_create_payload": {
+        "type": "object",
+        "properties": {
+          "funnel_stage_id": { "type": "integer", "example": 7 },
+          "lead_id": { "type": "integer", "nullable": true, "example": 42 },
+          "custom_name": { "type": "string", "nullable": true, "example": "New Deal" },
+          "lead_value": { "type": "number", "format": "float", "nullable": true },
+          "lead_currency": { "type": "string", "nullable": true },
+          "assigned_agent_id": { "type": "integer", "nullable": true },
+          "position": { "type": "integer", "nullable": true }
+        }
+      },
+      "funnel_card_update_payload": {
+        "type": "object",
+        "properties": {
+          "funnel_stage_id": { "type": "integer", "nullable": true },
+          "position": { "type": "integer", "nullable": true },
+          "custom_name": { "type": "string", "nullable": true },
+          "lead_value": { "type": "number", "format": "float", "nullable": true },
+          "lead_currency": { "type": "string", "nullable": true },
+          "assigned_agent_id": { "type": "integer", "nullable": true }
+        }
+      },
+      "funnel_card_move_payload": {
+        "type": "object",
+        "required": ["target_stage_id"],
+        "properties": {
+          "target_stage_id": { "type": "integer", "example": 9 },
+          "position": { "type": "integer", "nullable": true, "example": 2 }
+        }
+      },
+      "card_history_event": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "event_type": { "type": "string", "example": "stage_changed" },
+          "description": { "type": "string", "example": "Card moved from Qualification to Proposal." },
+          "from_stage": { "type": "string", "nullable": true, "example": "Qualification" },
+          "to_stage": { "type": "string", "nullable": true, "example": "Proposal" },
+          "actor": { "$ref": "#/components/schemas/agent_summary", "nullable": true },
+          "occurred_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "funnel_analytics": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "object",
+            "properties": {
+              "since": { "type": "string", "format": "date" },
+              "until": { "type": "string", "format": "date" }
+            }
+          },
+          "total_created": { "type": "integer", "example": 30 },
+          "total_won": { "type": "integer", "example": 10 },
+          "total_lost": { "type": "integer", "example": 4 },
+          "total_value_created": { "type": "number", "format": "float", "example": 150000.0 },
+          "total_value_won": { "type": "number", "format": "float", "example": 60000.0 },
+          "average_deal_size": { "type": "number", "format": "float", "example": 6000.0 },
+          "conversion_rate": { "type": "number", "format": "float", "example": 33.3 },
+          "by_agent": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "agent": { "$ref": "#/components/schemas/agent_summary" },
+                "created": { "type": "integer" },
+                "won": { "type": "integer" },
+                "value_won": { "type": "number", "format": "float" }
+              }
+            }
+          },
+          "by_stage": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stage_id": { "type": "integer" },
+                "stage_name": { "type": "string" },
+                "count": { "type": "integer" },
+                "value": { "type": "number", "format": "float" }
+              }
+            }
+          }
+        }
+      },
+      "follow_up_task": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 20 },
+          "title": { "type": "string", "example": "Follow up with prospect" },
+          "description": { "type": "string", "nullable": true, "example": "Call back after proposal review." },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "completed", "snoozed"],
+            "example": "pending"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "example": "medium"
+          },
+          "due_at": { "type": "string", "format": "date-time", "nullable": true },
+          "completed_at": { "type": "string", "format": "date-time", "nullable": true },
+          "taskable_type": { "type": "string", "example": "Lead" },
+          "taskable_id": { "type": "integer", "example": 42 },
+          "assigned_to": { "$ref": "#/components/schemas/agent_summary", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "follow_up_task_create_payload": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": { "type": "string", "example": "Follow up with prospect" },
+          "description": { "type": "string", "nullable": true, "example": "Call back after proposal review." },
+          "due_at": { "type": "string", "format": "date-time", "nullable": true, "example": "2026-06-15T10:00:00Z" },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "default": "medium"
+          },
+          "assigned_to_id": { "type": "integer", "nullable": true, "example": 1 },
+          "taskable_type": {
+            "type": "string",
+            "enum": ["Lead", "FunnelCard", "Conversation", "Contact"],
+            "example": "Lead"
+          },
+          "taskable_id": { "type": "integer", "nullable": true, "example": 42 }
+        }
+      },
+      "follow_up_task_update_payload": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "due_at": { "type": "string", "format": "date-time", "nullable": true },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          },
+          "assigned_to_id": { "type": "integer", "nullable": true }
+        }
+      },
+      "follow_up_task_snooze_payload": {
+        "type": "object",
+        "required": ["duration"],
+        "properties": {
+          "duration": {
+            "type": "string",
+            "description": "Snooze duration. Accepts values like '1h', '1d', '1w', or an ISO 8601 datetime string.",
+            "example": "1d"
+          }
+        }
+      },
+      "crm_sidebar": {
+        "type": "object",
+        "properties": {
+          "conversation_id": { "type": "integer", "example": 100 },
+          "linked_lead": { "$ref": "#/components/schemas/lead", "nullable": true },
+          "linked_funnel_card": { "$ref": "#/components/schemas/funnel_card", "nullable": true },
+          "follow_up_tasks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/follow_up_task" }
+          }
+        }
+      },
+      "crm_link_pipeline_payload": {
+        "type": "object",
+        "required": ["funnel_card_id"],
+        "properties": {
+          "funnel_card_id": { "type": "integer", "example": 55 }
+        }
+      },
+      "crm_link_lead_payload": {
+        "type": "object",
+        "required": ["lead_id"],
+        "properties": {
+          "lead_id": { "type": "integer", "example": 42 }
+        }
+      },
+      "crm_convert_to_deal_payload": {
+        "type": "object",
+        "required": ["funnel_id"],
+        "properties": {
+          "lead_id": { "type": "integer", "nullable": true, "example": 42 },
+          "funnel_id": { "type": "integer", "example": 3 },
+          "stage_id": { "type": "integer", "nullable": true, "example": 7 }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/leads": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Leads"],
+        "operationId": "list-leads",
+        "summary": "List leads",
+        "description": "Returns a paginated list of leads for the account, with optional filtering and sorting.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["open", "won", "lost", "snoozed"] },
+            "description": "Filter leads by status."
+          },
+          {
+            "name": "assigned_agent_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter leads assigned to a specific agent."
+          },
+          {
+            "name": "source_inbox_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter leads originating from a specific inbox."
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["created_at", "updated_at", "lead_value", "position", "custom_name"],
+              "default": "created_at"
+            },
+            "description": "Field to sort results by."
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["asc", "desc"], "default": "desc" },
+            "description": "Sort direction."
+          },
+          { "$ref": "#/components/parameters/page" },
+          { "$ref": "#/components/parameters/per_page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of leads.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/lead" } },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current_page": { "type": "integer" },
+                        "total_pages": { "type": "integer" },
+                        "total_count": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Leads"],
+        "operationId": "create-lead",
+        "summary": "Create a lead",
+        "description": "Creates a new lead in the account.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/lead_create_payload" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lead created successfully.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/lead" } } }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/leads/stats": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Leads"],
+        "operationId": "get-lead-stats",
+        "summary": "Get lead stats",
+        "description": "Returns aggregate statistics for leads in the account.",
+        "responses": {
+          "200": {
+            "description": "Lead statistics.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/lead_stats" } } }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/leads/bulk": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "post": {
+        "tags": ["Leads"],
+        "operationId": "bulk-action-leads",
+        "summary": "Bulk action on leads",
+        "description": "Perform a bulk action (assign, change status, delete) on multiple leads at once.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/lead_bulk_payload" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk action completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "affected_count": { "type": "integer", "example": 3 }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/leads/{id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the lead."
+        }
+      ],
+      "get": {
+        "tags": ["Leads"],
+        "operationId": "get-lead",
+        "summary": "Get a lead",
+        "description": "Returns details for a single lead.",
+        "responses": {
+          "200": { "description": "Lead details.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/lead" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Lead not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "patch": {
+        "tags": ["Leads"],
+        "operationId": "update-lead",
+        "summary": "Update a lead",
+        "description": "Updates fields of an existing lead.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/lead_update_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Lead updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/lead" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Lead not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Leads"],
+        "operationId": "delete-lead",
+        "summary": "Delete a lead",
+        "description": "Permanently deletes a lead.",
+        "responses": {
+          "204": { "description": "Lead deleted successfully." },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Lead not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/leads/{id}/status": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the lead."
+        }
+      ],
+      "patch": {
+        "tags": ["Leads"],
+        "operationId": "change-lead-status",
+        "summary": "Change lead status",
+        "description": "Changes the status of a lead (e.g., open, won, lost, snoozed) with optional notes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/lead_status_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Status updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/lead" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Lead not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/leads/{lead_id}/convert": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "lead_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the lead to convert."
+        }
+      ],
+      "post": {
+        "tags": ["Leads"],
+        "operationId": "convert-lead-to-deal",
+        "summary": "Convert lead to deal",
+        "description": "Converts a lead into a pipeline card (deal) in the specified funnel and optional stage.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/lead_convert_payload" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lead converted; returns the new funnel card.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel_card" } } }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Lead or funnel not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/leads/{lead_id}/notes": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "lead_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the lead."
+        }
+      ],
+      "get": {
+        "tags": ["Leads"],
+        "operationId": "list-lead-notes",
+        "summary": "List lead notes",
+        "description": "Returns all notes attached to a lead.",
+        "responses": {
+          "200": {
+            "description": "List of notes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/lead_note" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Lead not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Leads"],
+        "operationId": "create-lead-note",
+        "summary": "Create a lead note",
+        "description": "Adds a new note to a lead.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/lead_note_create_payload" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Note created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/lead_note" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Lead not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/companies": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Companies"],
+        "operationId": "list-companies",
+        "summary": "List companies",
+        "description": "Returns a paginated list of companies.",
+        "parameters": [
+          { "$ref": "#/components/parameters/page" },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["name", "created_at", "updated_at"], "default": "created_at" },
+            "description": "Sort field."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of companies.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/company" } },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current_page": { "type": "integer" },
+                        "total_pages": { "type": "integer" },
+                        "total_count": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Companies"],
+        "operationId": "create-company",
+        "summary": "Create a company",
+        "description": "Creates a new company.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/company_create_payload" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Company created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/company" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/companies/search": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Companies"],
+        "operationId": "search-companies",
+        "summary": "Search companies",
+        "description": "Full-text search across company names and domains.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Search query string."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching companies.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/company" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/companies/{id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the company."
+        }
+      ],
+      "get": {
+        "tags": ["Companies"],
+        "operationId": "get-company",
+        "summary": "Get a company",
+        "description": "Returns details for a single company.",
+        "responses": {
+          "200": { "description": "Company details.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/company" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Company not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "patch": {
+        "tags": ["Companies"],
+        "operationId": "update-company",
+        "summary": "Update a company",
+        "description": "Updates fields of an existing company.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/company_update_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Company updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/company" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Company not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Companies"],
+        "operationId": "delete-company",
+        "summary": "Delete a company",
+        "description": "Permanently deletes a company.",
+        "responses": {
+          "204": { "description": "Company deleted." },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Company not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/companies/{id}/timeline": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the company."
+        }
+      ],
+      "get": {
+        "tags": ["Companies"],
+        "operationId": "get-company-timeline",
+        "summary": "Get company timeline",
+        "description": "Returns chronological activity events associated with a company.",
+        "responses": {
+          "200": {
+            "description": "Timeline events.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/timeline_event" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Company not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/companies/{id}/duplicates": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the company."
+        }
+      ],
+      "get": {
+        "tags": ["Companies"],
+        "operationId": "find-company-duplicates",
+        "summary": "Find company duplicates",
+        "description": "Returns a list of companies that may be duplicates of the given company, based on name or domain similarity.",
+        "responses": {
+          "200": {
+            "description": "Potential duplicate companies.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/company" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Company not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/companies/{id}/merge": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the source company (will be deleted after merge)."
+        }
+      ],
+      "post": {
+        "tags": ["Companies"],
+        "operationId": "merge-companies",
+        "summary": "Merge companies",
+        "description": "Merges the source company into a target company. All contacts and data are moved to the target; the source is deleted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/company_merge_payload" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Merge completed. Returns the surviving target company.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/company" } } }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Company not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/companies/{id}/contacts": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the company."
+        }
+      ],
+      "get": {
+        "tags": ["Companies"],
+        "operationId": "list-company-contacts",
+        "summary": "List company contacts",
+        "description": "Returns all contacts associated with the company.",
+        "responses": {
+          "200": {
+            "description": "List of contacts.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/contact_summary" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Company not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Companies"],
+        "operationId": "add-company-contact",
+        "summary": "Add a contact to a company",
+        "description": "Associates an existing contact with the company.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/company_add_contact_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Contact added successfully.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/contact_summary" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Company or contact not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/companies/{id}/contacts/{contact_id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the company."
+        },
+        {
+          "name": "contact_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the contact to remove."
+        }
+      ],
+      "delete": {
+        "tags": ["Companies"],
+        "operationId": "remove-company-contact",
+        "summary": "Remove a contact from a company",
+        "description": "Disassociates a contact from the company (does not delete the contact).",
+        "responses": {
+          "204": { "description": "Contact removed from company." },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Company or contact not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Pipelines"],
+        "operationId": "list-funnels",
+        "summary": "List pipelines",
+        "description": "Returns all pipelines (funnels) for the account.",
+        "responses": {
+          "200": {
+            "description": "List of pipelines.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/funnel" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Pipelines"],
+        "operationId": "create-funnel",
+        "summary": "Create a pipeline",
+        "description": "Creates a new pipeline (funnel).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/funnel_create_payload" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Pipeline created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the pipeline."
+        }
+      ],
+      "get": {
+        "tags": ["Pipelines"],
+        "operationId": "get-funnel",
+        "summary": "Get a pipeline",
+        "description": "Returns details for a single pipeline.",
+        "responses": {
+          "200": { "description": "Pipeline details.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "patch": {
+        "tags": ["Pipelines"],
+        "operationId": "update-funnel",
+        "summary": "Update a pipeline",
+        "description": "Updates fields of an existing pipeline.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/funnel_update_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Pipeline updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Pipelines"],
+        "operationId": "delete-funnel",
+        "summary": "Delete a pipeline",
+        "description": "Permanently deletes a pipeline and all its stages and cards.",
+        "responses": {
+          "204": { "description": "Pipeline deleted." },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}/stats": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" }
+        }
+      ],
+      "get": {
+        "tags": ["Pipelines"],
+        "operationId": "get-funnel-stats",
+        "summary": "Get pipeline stats",
+        "description": "Returns aggregate statistics for a pipeline.",
+        "responses": {
+          "200": { "description": "Pipeline stats.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel_stats" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}/stages": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the pipeline."
+        }
+      ],
+      "get": {
+        "tags": ["Pipelines"],
+        "operationId": "list-funnel-stages",
+        "summary": "List pipeline stages",
+        "description": "Returns all stages for a pipeline, ordered by position.",
+        "responses": {
+          "200": {
+            "description": "List of stages.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/funnel_stage" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Pipelines"],
+        "operationId": "create-funnel-stage",
+        "summary": "Create a pipeline stage",
+        "description": "Adds a new stage to a pipeline.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/funnel_stage_create_payload" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Stage created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel_stage" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}/stages/{stage_id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the pipeline."
+        },
+        {
+          "name": "stage_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the stage."
+        }
+      ],
+      "patch": {
+        "tags": ["Pipelines"],
+        "operationId": "update-funnel-stage",
+        "summary": "Update a pipeline stage",
+        "description": "Updates fields of an existing pipeline stage.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/funnel_stage_create_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Stage updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel_stage" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline or stage not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Pipelines"],
+        "operationId": "delete-funnel-stage",
+        "summary": "Delete a pipeline stage",
+        "description": "Deletes a pipeline stage. Cards in the stage must be moved or deleted beforehand.",
+        "responses": {
+          "204": { "description": "Stage deleted." },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline or stage not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Cannot delete stage with existing cards", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}/stages/reorder": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the pipeline."
+        }
+      ],
+      "post": {
+        "tags": ["Pipelines"],
+        "operationId": "reorder-funnel-stages",
+        "summary": "Reorder pipeline stages",
+        "description": "Updates the display order of stages within a pipeline.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/funnel_stage_reorder_payload" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stages reordered.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/funnel_stage" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}/cards": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the pipeline."
+        }
+      ],
+      "get": {
+        "tags": ["Pipelines"],
+        "operationId": "list-funnel-cards",
+        "summary": "List pipeline cards",
+        "description": "Returns all cards (deals) in a pipeline, with optional filtering by stage or lead status.",
+        "parameters": [
+          {
+            "name": "lead_status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["open", "won", "lost", "snoozed"] },
+            "description": "Filter cards by the associated lead status."
+          },
+          {
+            "name": "stage_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter cards by stage."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of cards.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/funnel_card" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Pipelines"],
+        "operationId": "create-funnel-card",
+        "summary": "Create a pipeline card",
+        "description": "Creates a new card (deal) in a pipeline. You may link an existing lead or provide lead fields to create one inline.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/funnel_card_create_payload" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Card created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel_card" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}/cards/{card_id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the pipeline."
+        },
+        {
+          "name": "card_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the card."
+        }
+      ],
+      "patch": {
+        "tags": ["Pipelines"],
+        "operationId": "update-funnel-card",
+        "summary": "Update a pipeline card",
+        "description": "Updates fields of an existing pipeline card.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/funnel_card_update_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Card updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel_card" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Card not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Pipelines"],
+        "operationId": "delete-funnel-card",
+        "summary": "Delete a pipeline card",
+        "description": "Permanently deletes a pipeline card.",
+        "responses": {
+          "204": { "description": "Card deleted." },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Card not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}/cards/{card_id}/move": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the pipeline."
+        },
+        {
+          "name": "card_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the card."
+        }
+      ],
+      "post": {
+        "tags": ["Pipelines"],
+        "operationId": "move-funnel-card",
+        "summary": "Move a pipeline card",
+        "description": "Moves a card to a different stage and/or position within the pipeline.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/funnel_card_move_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Card moved.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel_card" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Card or target stage not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}/cards/{card_id}/history": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the pipeline."
+        },
+        {
+          "name": "card_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the card."
+        }
+      ],
+      "get": {
+        "tags": ["Pipelines"],
+        "operationId": "get-funnel-card-history",
+        "summary": "Get card history",
+        "description": "Returns the full activity history for a pipeline card (stage moves, field changes, etc.).",
+        "responses": {
+          "200": {
+            "description": "Card history events.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/card_history_event" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Card not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/funnels/{id}/analytics": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the pipeline."
+        }
+      ],
+      "get": {
+        "tags": ["Pipelines"],
+        "operationId": "get-funnel-analytics",
+        "summary": "Get pipeline analytics",
+        "description": "Returns detailed analytics for a pipeline within a date range, optionally grouped.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" },
+            "description": "Start date (inclusive) for analytics window.",
+            "example": "2026-01-01"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" },
+            "description": "End date (inclusive) for analytics window.",
+            "example": "2026-05-31"
+          },
+          {
+            "name": "agent_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter analytics to a specific agent."
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["day", "week", "month", "agent", "stage"] },
+            "description": "Grouping dimension for time-series or breakdown data."
+          }
+        ],
+        "responses": {
+          "200": { "description": "Pipeline analytics.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel_analytics" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Pipeline not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/follow_up_tasks": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Follow-up Tasks"],
+        "operationId": "list-follow-up-tasks",
+        "summary": "List follow-up tasks",
+        "description": "Returns a paginated list of follow-up tasks, with optional filtering.",
+        "parameters": [
+          {
+            "name": "taskable_type",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["Lead", "FunnelCard", "Conversation", "Contact"] },
+            "description": "Filter tasks by the type of attached entity."
+          },
+          {
+            "name": "taskable_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter tasks by the ID of the attached entity. Requires taskable_type."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["pending", "completed", "snoozed"] },
+            "description": "Filter by task status."
+          },
+          {
+            "name": "due_before",
+            "in": "query",
+            "schema": { "type": "string", "format": "date-time" },
+            "description": "Return tasks due before this timestamp."
+          },
+          {
+            "name": "due_after",
+            "in": "query",
+            "schema": { "type": "string", "format": "date-time" },
+            "description": "Return tasks due after this timestamp."
+          },
+          { "$ref": "#/components/parameters/page" },
+          { "$ref": "#/components/parameters/per_page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of tasks.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/follow_up_task" } },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current_page": { "type": "integer" },
+                        "total_pages": { "type": "integer" },
+                        "total_count": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Follow-up Tasks"],
+        "operationId": "create-follow-up-task",
+        "summary": "Create a follow-up task",
+        "description": "Creates a new follow-up task, optionally attached to a lead, deal, conversation, or contact.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/follow_up_task_create_payload" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Task created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/follow_up_task" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/follow_up_tasks/calendar": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Follow-up Tasks"],
+        "operationId": "get-follow-up-tasks-calendar",
+        "summary": "Calendar view of tasks",
+        "description": "Returns follow-up tasks within a date range, suitable for rendering in a calendar view.",
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" },
+            "description": "Start of the calendar window.",
+            "example": "2026-06-01"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" },
+            "description": "End of the calendar window.",
+            "example": "2026-06-30"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tasks within the date range.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/follow_up_task" } }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/follow_up_tasks/{id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the follow-up task."
+        }
+      ],
+      "get": {
+        "tags": ["Follow-up Tasks"],
+        "operationId": "get-follow-up-task",
+        "summary": "Get a follow-up task",
+        "description": "Returns details for a single follow-up task.",
+        "responses": {
+          "200": { "description": "Task details.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/follow_up_task" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Task not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      },
+      "patch": {
+        "tags": ["Follow-up Tasks"],
+        "operationId": "update-follow-up-task",
+        "summary": "Update a follow-up task",
+        "description": "Updates fields of an existing follow-up task.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/follow_up_task_update_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Task updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/follow_up_task" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Task not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Follow-up Tasks"],
+        "operationId": "delete-follow-up-task",
+        "summary": "Delete a follow-up task",
+        "description": "Permanently deletes a follow-up task.",
+        "responses": {
+          "204": { "description": "Task deleted." },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Task not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/follow_up_tasks/{id}/complete": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the follow-up task."
+        }
+      ],
+      "patch": {
+        "tags": ["Follow-up Tasks"],
+        "operationId": "complete-follow-up-task",
+        "summary": "Complete a follow-up task",
+        "description": "Marks a follow-up task as completed and records the completion timestamp.",
+        "responses": {
+          "200": { "description": "Task marked as completed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/follow_up_task" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Task not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/follow_up_tasks/{id}/snooze": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the follow-up task."
+        }
+      ],
+      "patch": {
+        "tags": ["Follow-up Tasks"],
+        "operationId": "snooze-follow-up-task",
+        "summary": "Snooze a follow-up task",
+        "description": "Snoozes a task for the specified duration, updating its due_at and setting status to snoozed.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/follow_up_task_snooze_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Task snoozed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/follow_up_task" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Task not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/conversations/{conversation_id}/crm": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "conversation_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the conversation."
+        }
+      ],
+      "get": {
+        "tags": ["Conversation CRM"],
+        "operationId": "get-conversation-crm",
+        "summary": "Get conversation CRM sidebar",
+        "description": "Returns CRM data associated with a conversation, including linked lead, pipeline card, and follow-up tasks.",
+        "responses": {
+          "200": { "description": "CRM sidebar data.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/crm_sidebar" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Conversation not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/conversations/{conversation_id}/crm/link_pipeline": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "conversation_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the conversation."
+        }
+      ],
+      "post": {
+        "tags": ["Conversation CRM"],
+        "operationId": "link-conversation-pipeline",
+        "summary": "Link pipeline to conversation",
+        "description": "Associates an existing pipeline card (deal) with the conversation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/crm_link_pipeline_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Pipeline linked.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/crm_sidebar" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Conversation or card not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/conversations/{conversation_id}/crm/unlink_pipeline": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "conversation_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the conversation."
+        }
+      ],
+      "delete": {
+        "tags": ["Conversation CRM"],
+        "operationId": "unlink-conversation-pipeline",
+        "summary": "Unlink pipeline from conversation",
+        "description": "Removes the pipeline card association from the conversation. The card is not deleted.",
+        "responses": {
+          "204": { "description": "Pipeline unlinked." },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Conversation not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/conversations/{conversation_id}/crm/link_lead": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "conversation_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the conversation."
+        }
+      ],
+      "post": {
+        "tags": ["Conversation CRM"],
+        "operationId": "link-conversation-lead",
+        "summary": "Link lead to conversation",
+        "description": "Associates an existing lead with the conversation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/crm_link_lead_payload" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "Lead linked.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/crm_sidebar" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Conversation or lead not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/conversations/{conversation_id}/crm/convert_to_deal": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "conversation_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "The ID of the conversation."
+        }
+      ],
+      "post": {
+        "tags": ["Conversation CRM"],
+        "operationId": "convert-conversation-to-deal",
+        "summary": "Convert conversation to deal",
+        "description": "Converts a lead linked to the conversation into a pipeline card (deal) in the specified funnel and stage.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/crm_convert_to_deal_payload" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Deal created; returns the new funnel card.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/funnel_card" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "404": { "description": "Conversation, lead, or funnel not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/error_response" } } } },
+          "422": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/validation_error" } } } }
+        }
+      }
+    }
+  }
+}

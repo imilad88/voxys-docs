@@ -1,0 +1,2679 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect – Extended Features",
+    "description": "API documentation for Voxys Connect extended features: Campaigns, WhatsApp Templates & Flows, Appointments, Scheduled Messages, Projects, Internal Channels, Customer Pulse, and Reports.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Campaigns & Messaging",
+      "tags": ["Campaigns Extended", "WhatsApp Templates", "WhatsApp Flows", "Scheduled Messages", "Outbound Reports"]
+    },
+    {
+      "name": "Appointments",
+      "tags": ["Appointments", "Appointment Services", "Providers"]
+    },
+    {
+      "name": "Projects & Collaboration",
+      "tags": ["Projects", "Internal Channels"]
+    },
+    {
+      "name": "AI & Analytics",
+      "tags": ["Customer Pulse", "Leads Reports"]
+    }
+  ],
+  "tags": [
+    { "name": "Campaigns Extended", "description": "Campaign triggering, analytics, scheduling, audiences, and contact lists" },
+    { "name": "WhatsApp Templates", "description": "Create, manage, and submit WhatsApp message templates to Meta" },
+    { "name": "WhatsApp Flows", "description": "Build and publish interactive WhatsApp Flows" },
+    { "name": "Appointments", "description": "Appointment booking, confirmation, rescheduling, and availability" },
+    { "name": "Appointment Services", "description": "Manage bookable services offered to contacts" },
+    { "name": "Providers", "description": "Manage service providers for appointment booking" },
+    { "name": "Scheduled Messages", "description": "Schedule messages for future delivery" },
+    { "name": "Projects", "description": "Manage CRM projects and tasks" },
+    { "name": "Internal Channels", "description": "Team communication channels and internal messaging" },
+    { "name": "Customer Pulse", "description": "Sentiment analysis and customer pulse metrics" },
+    { "name": "Outbound Reports", "description": "Analytics for outbound campaign and template messages (v2)" },
+    { "name": "Leads Reports", "description": "Lead pipeline analytics and CSV export (v2)" }
+  ],
+  "security": [
+    { "userApiKey": [] }
+  ],
+  "paths": {
+
+    "/api/v1/accounts/{account_id}/campaigns/{id}/trigger": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "post": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "triggerCampaign",
+        "summary": "Trigger a campaign",
+        "description": "Manually trigger execution of a campaign.",
+        "responses": {
+          "200": { "description": "Campaign triggered successfully" },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaigns/{id}/campaign_analytics": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "get": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "getCampaignAnalytics",
+        "summary": "Show campaign analytics",
+        "description": "Returns aggregate analytics for the specified campaign.",
+        "responses": {
+          "200": {
+            "description": "Campaign analytics",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/campaign_analytics" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaigns/{id}/campaign_analytics/execution_details": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "get": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "getCampaignExecutionDetails",
+        "summary": "Execution details",
+        "description": "Returns paginated execution-level details for a campaign, optionally filtered by status.",
+        "parameters": [
+          {
+            "name": "execution_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by specific execution ID"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Page number"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["pending", "sent", "delivered", "read", "failed"] },
+            "description": "Filter by message status"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Execution details list" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaigns/{id}/campaign_analytics/real_time_progress": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "get": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "getCampaignRealTimeProgress",
+        "summary": "Real-time progress",
+        "description": "Returns live progress data for a running campaign execution.",
+        "parameters": [
+          {
+            "name": "execution_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Execution ID to track"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Real-time progress data" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaigns/{id}/campaign_analytics/pause_execution": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "patch": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "pauseCampaignExecution",
+        "summary": "Pause execution",
+        "description": "Pauses an in-progress campaign execution.",
+        "responses": {
+          "200": { "description": "Execution paused" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaigns/{id}/campaign_analytics/resume_execution": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "patch": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "resumeCampaignExecution",
+        "summary": "Resume execution",
+        "description": "Resumes a paused campaign execution.",
+        "responses": {
+          "200": { "description": "Execution resumed" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaigns/{campaign_id}/campaign_audience/upload_csv": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        {
+          "name": "campaign_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" }
+        }
+      ],
+      "post": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "uploadCampaignAudienceCsv",
+        "summary": "Upload CSV audience",
+        "description": "Upload a CSV file to set the audience for a campaign.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "CSV file with contact phone numbers"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "CSV uploaded and audience set" },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaigns/{id}/campaign_scheduler": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "get": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "getCampaignScheduler",
+        "summary": "Show campaign schedule",
+        "description": "Returns the scheduler configuration for a campaign.",
+        "responses": {
+          "200": {
+            "description": "Campaign scheduler details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/campaign_scheduler" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaign_scheduler": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "post": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "createCampaignScheduler",
+        "summary": "Create campaign schedule",
+        "description": "Creates a scheduler entry for a campaign.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/campaign_scheduler_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Scheduler created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/campaign_scheduler" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaign_contact_lists": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "listCampaignContactLists",
+        "summary": "List contact lists",
+        "description": "Returns all campaign contact lists for the account.",
+        "responses": {
+          "200": {
+            "description": "Contact lists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/campaign_contact_list" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "createCampaignContactList",
+        "summary": "Create contact list",
+        "description": "Creates a new campaign contact list.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/campaign_contact_list_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contact list created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/campaign_contact_list" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/campaign_contact_lists/upload_csv": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "post": {
+        "tags": ["Campaigns Extended"],
+        "operationId": "uploadCampaignContactListCsv",
+        "summary": "Upload contact list CSV",
+        "description": "Upload a CSV file to bulk-create a contact list.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Name for the contact list"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "CSV uploaded" },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/whatsapp_templates": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["WhatsApp Templates"],
+        "operationId": "listWhatsappTemplates",
+        "summary": "List WhatsApp templates",
+        "description": "Returns a paginated list of WhatsApp templates, with optional filters.",
+        "parameters": [
+          {
+            "name": "whatsapp_channel_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by WhatsApp channel (inbox) ID"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["draft", "pending", "approved", "rejected", "paused"] },
+            "description": "Filter by template status"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["MARKETING", "UTILITY", "AUTHENTICATION"] },
+            "description": "Filter by category"
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by language code (e.g. en_US, ar)"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Search by template name"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Templates list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/whatsapp_template" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["WhatsApp Templates"],
+        "operationId": "createWhatsappTemplate",
+        "summary": "Create WhatsApp template",
+        "description": "Creates a new WhatsApp message template.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/whatsapp_template_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Template created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/whatsapp_template" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/whatsapp_templates/analytics": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["WhatsApp Templates"],
+        "operationId": "getWhatsappTemplateAnalytics",
+        "summary": "Template analytics",
+        "description": "Returns aggregate performance analytics across all WhatsApp templates.",
+        "parameters": [
+          {
+            "name": "whatsapp_channel_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Start timestamp (Unix epoch)"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "End timestamp (Unix epoch)"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Template analytics data" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/whatsapp_templates/upload_media": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "post": {
+        "tags": ["WhatsApp Templates"],
+        "operationId": "uploadWhatsappTemplateMedia",
+        "summary": "Upload template media",
+        "description": "Uploads a media file for use in a WhatsApp template header.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["media_file", "inbox_id"],
+                "properties": {
+                  "media_file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "inbox_id": {
+                    "type": "integer",
+                    "description": "WhatsApp inbox ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Media uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "media_id": { "type": "string" },
+                    "url": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/whatsapp_templates/{id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "get": {
+        "tags": ["WhatsApp Templates"],
+        "operationId": "getWhatsappTemplate",
+        "summary": "Show WhatsApp template",
+        "description": "Returns a single WhatsApp template.",
+        "responses": {
+          "200": {
+            "description": "Template details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/whatsapp_template" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      },
+      "patch": {
+        "tags": ["WhatsApp Templates"],
+        "operationId": "updateWhatsappTemplate",
+        "summary": "Update WhatsApp template",
+        "description": "Updates a draft WhatsApp template.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/whatsapp_template_create" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Template updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/whatsapp_template" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      },
+      "delete": {
+        "tags": ["WhatsApp Templates"],
+        "operationId": "deleteWhatsappTemplate",
+        "summary": "Delete WhatsApp template",
+        "description": "Soft-deletes a WhatsApp template.",
+        "responses": {
+          "200": { "description": "Template deleted" },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/whatsapp_templates/{id}/submit": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "post": {
+        "tags": ["WhatsApp Templates"],
+        "operationId": "submitWhatsappTemplate",
+        "summary": "Submit template to Meta",
+        "description": "Submits a draft template to Meta for review and approval.",
+        "responses": {
+          "200": { "description": "Template submitted to Meta" },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/whatsapp_templates/{id}/clone": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "post": {
+        "tags": ["WhatsApp Templates"],
+        "operationId": "cloneWhatsappTemplate",
+        "summary": "Clone template",
+        "description": "Creates a duplicate of an existing template with a new name.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name for the cloned template"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Template cloned",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/whatsapp_template" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/whatsapp_flows": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["WhatsApp Flows"],
+        "operationId": "listWhatsappFlows",
+        "summary": "List WhatsApp Flows",
+        "description": "Returns all WhatsApp Flows for the account.",
+        "responses": {
+          "200": {
+            "description": "Flows list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/whatsapp_flow" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["WhatsApp Flows"],
+        "operationId": "createWhatsappFlow",
+        "summary": "Create WhatsApp Flow",
+        "description": "Creates a new WhatsApp Flow.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/whatsapp_flow_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Flow created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/whatsapp_flow" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/whatsapp_flows/{id}/publish": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "post": {
+        "tags": ["WhatsApp Flows"],
+        "operationId": "publishWhatsappFlow",
+        "summary": "Publish WhatsApp Flow",
+        "description": "Publishes a draft WhatsApp Flow to Meta.",
+        "responses": {
+          "200": { "description": "Flow published" },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/whatsapp_flows/sync_from_meta": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "post": {
+        "tags": ["WhatsApp Flows"],
+        "operationId": "syncWhatsappFlowsFromMeta",
+        "summary": "Sync flows from Meta",
+        "description": "Imports WhatsApp Flows from Meta for the given inbox.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["inbox_id"],
+                "properties": {
+                  "inbox_id": {
+                    "type": "integer",
+                    "description": "WhatsApp inbox ID to sync flows from"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Flows synced from Meta" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/appointments": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Appointments"],
+        "operationId": "listAppointments",
+        "summary": "List appointments",
+        "description": "Returns appointments with optional filters.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled", "rescheduled"] }
+          },
+          {
+            "name": "provider_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "service_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" },
+            "description": "Filter by specific date (YYYY-MM-DD)"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" },
+            "description": "Range start date"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" },
+            "description": "Range end date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointments list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/appointment" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Appointments"],
+        "operationId": "createAppointment",
+        "summary": "Create appointment",
+        "description": "Creates a new appointment.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/appointment_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Appointment created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/appointment" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/appointments/availability": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Appointments"],
+        "operationId": "checkAppointmentAvailability",
+        "summary": "Check availability",
+        "description": "Returns available time slots for a provider and service on a given date.",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "service_id",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available time slots",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available_slots": {
+                      "type": "array",
+                      "items": { "type": "string", "format": "date-time" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/appointments/{id}/confirm": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "post": {
+        "tags": ["Appointments"],
+        "operationId": "confirmAppointment",
+        "summary": "Confirm appointment",
+        "description": "Confirms a pending appointment.",
+        "responses": {
+          "200": {
+            "description": "Appointment confirmed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/appointment" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/appointments/{id}/cancel": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "post": {
+        "tags": ["Appointments"],
+        "operationId": "cancelAppointment",
+        "summary": "Cancel appointment",
+        "description": "Cancels an appointment with an optional reason.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cancellation_reason": {
+                    "type": "string",
+                    "description": "Reason for cancellation"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Appointment cancelled",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/appointment" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/appointments/{id}/reschedule": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "post": {
+        "tags": ["Appointments"],
+        "operationId": "rescheduleAppointment",
+        "summary": "Reschedule appointment",
+        "description": "Reschedules an existing appointment to a new time.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["appointment_at"],
+                "properties": {
+                  "appointment_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notes": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Appointment rescheduled",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/appointment" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/appointments/{id}/complete": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "post": {
+        "tags": ["Appointments"],
+        "operationId": "completeAppointment",
+        "summary": "Complete appointment",
+        "description": "Marks an appointment as completed.",
+        "responses": {
+          "200": {
+            "description": "Appointment completed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/appointment" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/appointment_services": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Appointment Services"],
+        "operationId": "listAppointmentServices",
+        "summary": "List appointment services",
+        "description": "Returns all bookable services for the account.",
+        "responses": {
+          "200": {
+            "description": "Services list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/appointment_service" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Appointment Services"],
+        "operationId": "createAppointmentService",
+        "summary": "Create appointment service",
+        "description": "Creates a new bookable service.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/appointment_service_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Service created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/appointment_service" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/appointment_services/{id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "patch": {
+        "tags": ["Appointment Services"],
+        "operationId": "updateAppointmentService",
+        "summary": "Update appointment service",
+        "description": "Updates an existing appointment service.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/appointment_service_create" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Service updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/appointment_service" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/providers": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Providers"],
+        "operationId": "listProviders",
+        "summary": "List providers",
+        "description": "Returns all service providers for the account.",
+        "responses": {
+          "200": {
+            "description": "Providers list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/provider" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Providers"],
+        "operationId": "createProvider",
+        "summary": "Create provider",
+        "description": "Creates a new service provider.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/provider_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Provider created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/provider" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/providers/{id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "patch": {
+        "tags": ["Providers"],
+        "operationId": "updateProvider",
+        "summary": "Update provider",
+        "description": "Updates an existing service provider.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/provider_create" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Provider updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/provider" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/scheduled_messages": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Scheduled Messages"],
+        "operationId": "listScheduledMessages",
+        "summary": "List scheduled messages",
+        "description": "Returns scheduled messages with optional filters.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["pending", "sent", "cancelled", "failed"] }
+          },
+          {
+            "name": "conversation_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "contact_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scheduled messages list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/scheduled_message" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Scheduled Messages"],
+        "operationId": "createScheduledMessage",
+        "summary": "Create scheduled message",
+        "description": "Schedules a message for future delivery.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/scheduled_message_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Scheduled message created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/scheduled_message" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/scheduled_messages/{id}/cancel": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "post": {
+        "tags": ["Scheduled Messages"],
+        "operationId": "cancelScheduledMessage",
+        "summary": "Cancel scheduled message",
+        "description": "Cancels a pending scheduled message.",
+        "responses": {
+          "200": { "description": "Scheduled message cancelled" },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/projects": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Projects"],
+        "operationId": "listProjects",
+        "summary": "List projects",
+        "description": "Returns projects for the account with optional filters.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["active", "completed", "archived", "on_hold"] }
+          },
+          {
+            "name": "contact_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Projects list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/project" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Projects"],
+        "operationId": "createProject",
+        "summary": "Create project",
+        "description": "Creates a new project.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/project_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/project" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/projects/{id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "patch": {
+        "tags": ["Projects"],
+        "operationId": "updateProject",
+        "summary": "Update project",
+        "description": "Updates an existing project.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/project_create" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/project" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/projects/from_template": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "post": {
+        "tags": ["Projects"],
+        "operationId": "createProjectFromTemplate",
+        "summary": "Create project from template",
+        "description": "Creates a new project pre-populated from a project template.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["template_id"],
+                "properties": {
+                  "template_id": {
+                    "type": "integer",
+                    "description": "ID of the project template to use"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project created from template",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/project" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/projects/{id}/tasks": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "get": {
+        "tags": ["Projects"],
+        "operationId": "listProjectTasks",
+        "summary": "List project tasks",
+        "description": "Returns all tasks for a project.",
+        "responses": {
+          "200": {
+            "description": "Tasks list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/project_task" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      },
+      "post": {
+        "tags": ["Projects"],
+        "operationId": "createProjectTask",
+        "summary": "Create project task",
+        "description": "Creates a new task within a project.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/project_task_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Task created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/project_task" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/internal_channels": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Internal Channels"],
+        "operationId": "listInternalChannels",
+        "summary": "List internal channels",
+        "description": "Returns all internal team channels for the account.",
+        "responses": {
+          "200": {
+            "description": "Internal channels list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/internal_channel" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Internal Channels"],
+        "operationId": "createInternalChannel",
+        "summary": "Create internal channel",
+        "description": "Creates a new internal team channel.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/internal_channel_create" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Channel created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/internal_channel" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/internal_channels/{id}/messages": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" }
+      ],
+      "get": {
+        "tags": ["Internal Channels"],
+        "operationId": "listInternalChannelMessages",
+        "summary": "List channel messages",
+        "description": "Returns messages in an internal channel.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messages list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/internal_channel_message" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      },
+      "post": {
+        "tags": ["Internal Channels"],
+        "operationId": "sendInternalChannelMessage",
+        "summary": "Send message to channel",
+        "description": "Sends a message to an internal channel.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["content"],
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "Message text content"
+                  },
+                  "attachments": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Attachment URLs or blob IDs"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message sent",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/internal_channel_message" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/internal_channels/{id}/messages/{message_id}/pin": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" },
+        { "$ref": "#/components/parameters/id" },
+        {
+          "name": "message_id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "integer" },
+          "description": "Message ID to pin"
+        }
+      ],
+      "post": {
+        "tags": ["Internal Channels"],
+        "operationId": "pinInternalChannelMessage",
+        "summary": "Pin message",
+        "description": "Pins a message in an internal channel.",
+        "responses": {
+          "200": { "description": "Message pinned" },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "404": { "$ref": "#/components/responses/not_found" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/customer_pulse": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Customer Pulse"],
+        "operationId": "listCustomerPulse",
+        "summary": "List sentiment data",
+        "description": "Returns sentiment data for conversations with optional filters and grouping.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Start timestamp (Unix epoch)"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "End timestamp (Unix epoch)"
+          },
+          {
+            "name": "inbox_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "sentiment",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["positive", "neutral", "negative"] }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["day", "week", "month", "agent", "inbox"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sentiment data list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/customer_pulse_entry" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/customer_pulse/summary": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Customer Pulse"],
+        "operationId": "getCustomerPulseSummary",
+        "summary": "Sentiment summary",
+        "description": "Returns aggregate sentiment summary counts and percentages.",
+        "responses": {
+          "200": {
+            "description": "Sentiment summary",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/customer_pulse_summary" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/customer_pulse/metrics": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Customer Pulse"],
+        "operationId": "getCustomerPulseMetrics",
+        "summary": "Pulse metrics",
+        "description": "Returns detailed Customer Pulse metrics including trend data.",
+        "responses": {
+          "200": { "description": "Pulse metrics data" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/customer_pulse/agent_performance": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Customer Pulse"],
+        "operationId": "getCustomerPulseAgentPerformance",
+        "summary": "Agent performance",
+        "description": "Returns sentiment-based performance metrics per agent.",
+        "responses": {
+          "200": { "description": "Agent performance data" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/customer_pulse/settings": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "put": {
+        "tags": ["Customer Pulse"],
+        "operationId": "updateCustomerPulseSettings",
+        "summary": "Update pulse settings",
+        "description": "Updates Customer Pulse configuration such as escalation thresholds.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "escalation_enabled": {
+                    "type": "boolean",
+                    "description": "Enable automatic escalation for negative sentiment"
+                  },
+                  "escalation_threshold": {
+                    "type": "number",
+                    "format": "float",
+                    "description": "Sentiment score threshold for escalation (0.0 – 1.0)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Settings updated" },
+          "401": { "$ref": "#/components/responses/unauthorized" },
+          "422": { "$ref": "#/components/responses/unprocessable" }
+        }
+      }
+    },
+
+    "/api/v1/accounts/{account_id}/customer_pulse/bulk_analyze": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "post": {
+        "tags": ["Customer Pulse"],
+        "operationId": "bulkAnalyzeCustomerPulse",
+        "summary": "Bulk analyze conversations",
+        "description": "Triggers bulk sentiment analysis for past conversations.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "integer",
+                    "description": "Number of past days to analyze",
+                    "example": 30
+                  },
+                  "inbox_ids": {
+                    "type": "array",
+                    "items": { "type": "integer" },
+                    "description": "Limit analysis to these inbox IDs (omit for all)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Bulk analysis enqueued" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v2/accounts/{account_id}/outbound_reports": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Outbound Reports"],
+        "operationId": "getOutboundReportsTimeseries",
+        "summary": "Outbound message timeseries",
+        "description": "Returns time-series data for outbound messages (campaigns and manual template sends).",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "Start timestamp (Unix epoch)"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "End timestamp (Unix epoch)"
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["day", "week", "month"] },
+            "description": "Time grouping granularity"
+          },
+          {
+            "name": "campaign_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by campaign ID"
+          },
+          {
+            "name": "template_name",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by template name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timeseries data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/outbound_report_timeseries" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v2/accounts/{account_id}/outbound_reports/summary": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Outbound Reports"],
+        "operationId": "getOutboundReportsSummary",
+        "summary": "Outbound reports summary",
+        "description": "Returns aggregate totals for sent, delivered, read, and failed outbound messages.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "campaign_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "template_name",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Summary totals",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/outbound_report_summary" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v2/accounts/{account_id}/outbound_reports/by_template": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Outbound Reports"],
+        "operationId": "getOutboundReportsByTemplate",
+        "summary": "By-template breakdown",
+        "description": "Returns per-template performance breakdown with delivery and read rates.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Per-template breakdown",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/template_performance" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v2/accounts/{account_id}/outbound_reports/export_csv": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Outbound Reports"],
+        "operationId": "exportOutboundReportsCsv",
+        "summary": "Export CSV",
+        "description": "Downloads a CSV file with detailed outbound message data including phone number, contact name, status, timestamps, campaign name, template name, language, and category.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "campaign_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "template_name",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV file download",
+            "content": {
+              "text/csv": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v2/accounts/{account_id}/leads_reports": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Leads Reports"],
+        "operationId": "getLeadsReportsTimeseries",
+        "summary": "Leads timeseries",
+        "description": "Returns time-series data for leads pipeline activity.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["day", "week", "month"] }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Leads timeseries data" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v2/accounts/{account_id}/leads_reports/summary": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Leads Reports"],
+        "operationId": "getLeadsReportsSummary",
+        "summary": "Leads summary",
+        "description": "Returns aggregate leads pipeline summary metrics.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Leads summary data" },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    },
+
+    "/api/v2/accounts/{account_id}/leads_reports/export_csv": {
+      "parameters": [
+        { "$ref": "#/components/parameters/account_id" }
+      ],
+      "get": {
+        "tags": ["Leads Reports"],
+        "operationId": "exportLeadsReportsCsv",
+        "summary": "Export leads CSV",
+        "description": "Downloads a CSV file with detailed leads pipeline data.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV file download",
+            "content": {
+              "text/csv": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/unauthorized" }
+        }
+      }
+    }
+
+  },
+
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" },
+        "description": "Numeric ID of the resource"
+      }
+    },
+
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed – invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity – validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "schemas": {
+
+      "campaign_analytics": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "campaign_id": { "type": "integer" },
+          "total_sent": { "type": "integer" },
+          "total_delivered": { "type": "integer" },
+          "total_read": { "type": "integer" },
+          "total_failed": { "type": "integer" },
+          "delivery_rate": { "type": "number", "format": "float" },
+          "read_rate": { "type": "number", "format": "float" },
+          "executions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "execution_id": { "type": "integer" },
+                "status": { "type": "string" },
+                "started_at": { "type": "string", "format": "date-time" },
+                "completed_at": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      },
+
+      "campaign_scheduler": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "campaign_id": { "type": "integer" },
+          "schedule_type": { "type": "string", "enum": ["once", "recurring"] },
+          "scheduled_at": { "type": "string", "format": "date-time" },
+          "timezone": { "type": "string", "example": "Asia/Riyadh" },
+          "recurrence_pattern": { "type": "string", "example": "weekly" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "campaign_scheduler_create": {
+        "type": "object",
+        "required": ["campaign_id", "schedule_type", "scheduled_at", "timezone"],
+        "properties": {
+          "campaign_id": { "type": "integer" },
+          "schedule_type": { "type": "string", "enum": ["once", "recurring"] },
+          "scheduled_at": { "type": "string", "format": "date-time" },
+          "timezone": { "type": "string", "example": "Asia/Riyadh" },
+          "recurrence_pattern": {
+            "type": "string",
+            "enum": ["daily", "weekly", "monthly"],
+            "description": "Required when schedule_type is recurring"
+          }
+        }
+      },
+
+      "campaign_contact_list": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "contacts_count": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "campaign_contact_list_create": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "contacts": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Array of phone numbers or contact IDs"
+          }
+        }
+      },
+
+      "whatsapp_template": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "category": { "type": "string", "enum": ["MARKETING", "UTILITY", "AUTHENTICATION"] },
+          "language": { "type": "string", "example": "en_US" },
+          "status": { "type": "string", "enum": ["draft", "pending", "approved", "rejected", "paused"] },
+          "whatsapp_channel_id": { "type": "integer" },
+          "parameter_format": { "type": "string", "enum": ["named", "positional"] },
+          "components": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/whatsapp_template_component" }
+          },
+          "variable_mappings": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "whatsapp_template_create": {
+        "type": "object",
+        "required": ["name", "category", "language", "whatsapp_channel_id"],
+        "properties": {
+          "name": { "type": "string" },
+          "category": { "type": "string", "enum": ["MARKETING", "UTILITY", "AUTHENTICATION"] },
+          "language": { "type": "string", "example": "en_US" },
+          "whatsapp_channel_id": { "type": "integer" },
+          "parameter_format": {
+            "type": "string",
+            "enum": ["named", "positional"],
+            "description": "Variable format style for body placeholders"
+          },
+          "components": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/whatsapp_template_component" }
+          },
+          "variable_mappings": {
+            "type": "object",
+            "additionalProperties": { "type": "string" },
+            "description": "Map of variable names to contact attribute paths"
+          }
+        }
+      },
+
+      "whatsapp_template_component": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["HEADER", "BODY", "FOOTER", "BUTTONS", "CAROUSEL"]
+          },
+          "format": {
+            "type": "string",
+            "enum": ["TEXT", "IMAGE", "VIDEO", "DOCUMENT", "AUDIO"],
+            "description": "Applicable to HEADER type"
+          },
+          "text": { "type": "string" },
+          "buttons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string", "enum": ["QUICK_REPLY", "URL", "PHONE_NUMBER", "COPY_CODE"] },
+                "text": { "type": "string" },
+                "url": { "type": "string" },
+                "phone_number": { "type": "string" }
+              }
+            }
+          },
+          "cards": {
+            "type": "array",
+            "description": "Cards for CAROUSEL component type",
+            "items": {
+              "type": "object",
+              "properties": {
+                "components": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/whatsapp_template_component" }
+                }
+              }
+            }
+          }
+        }
+      },
+
+      "whatsapp_flow": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["draft", "published", "deprecated", "blocked"] },
+          "endpoint_uri": { "type": "string" },
+          "inbox_id": { "type": "integer" },
+          "categories": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "meta_flow_id": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "whatsapp_flow_create": {
+        "type": "object",
+        "required": ["name", "inbox_id"],
+        "properties": {
+          "name": { "type": "string" },
+          "endpoint_uri": { "type": "string" },
+          "inbox_id": { "type": "integer" },
+          "flow_json": {
+            "type": "object",
+            "description": "WhatsApp Flow JSON schema definition"
+          },
+          "categories": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+
+      "appointment": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "contact_id": { "type": "integer" },
+          "service_id": { "type": "integer" },
+          "provider_id": { "type": "integer" },
+          "appointment_at": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled", "rescheduled"] },
+          "notes": { "type": "string" },
+          "cancellation_reason": { "type": "string" },
+          "conversation_id": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "appointment_create": {
+        "type": "object",
+        "required": ["contact_id", "service_id", "provider_id", "appointment_at"],
+        "properties": {
+          "contact_id": { "type": "integer" },
+          "service_id": { "type": "integer" },
+          "provider_id": { "type": "integer" },
+          "appointment_at": { "type": "string", "format": "date-time" },
+          "notes": { "type": "string" },
+          "conversation_id": { "type": "integer" }
+        }
+      },
+
+      "appointment_service": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "duration_minutes": { "type": "integer" },
+          "default_price": { "type": "number", "format": "float" },
+          "color": { "type": "string", "example": "#3B82F6" },
+          "is_active": { "type": "boolean" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "appointment_service_create": {
+        "type": "object",
+        "required": ["name", "duration_minutes"],
+        "properties": {
+          "name": { "type": "string" },
+          "duration_minutes": { "type": "integer" },
+          "default_price": { "type": "number", "format": "float" },
+          "color": { "type": "string", "example": "#3B82F6" },
+          "is_active": { "type": "boolean", "default": true }
+        }
+      },
+
+      "provider": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "specialty": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "phone": { "type": "string" },
+          "color": { "type": "string", "example": "#10B981" },
+          "is_active": { "type": "boolean" },
+          "service_ids": {
+            "type": "array",
+            "items": { "type": "integer" }
+          },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "provider_create": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "specialty": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "phone": { "type": "string" },
+          "color": { "type": "string", "example": "#10B981" },
+          "is_active": { "type": "boolean", "default": true },
+          "service_ids": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "description": "IDs of services this provider offers"
+          }
+        }
+      },
+
+      "scheduled_message": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "content": { "type": "string" },
+          "scheduled_at": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["pending", "sent", "cancelled", "failed"] },
+          "inbox_id": { "type": "integer" },
+          "conversation_id": { "type": "integer" },
+          "contact_id": { "type": "integer" },
+          "template_params": { "type": "object" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "scheduled_message_create": {
+        "type": "object",
+        "required": ["scheduled_at", "inbox_id"],
+        "properties": {
+          "content": { "type": "string", "description": "Plain text message content" },
+          "scheduled_at": { "type": "string", "format": "date-time" },
+          "inbox_id": { "type": "integer" },
+          "conversation_id": { "type": "integer" },
+          "contact_id": { "type": "integer" },
+          "template_params": {
+            "type": "object",
+            "description": "WhatsApp template parameters if sending a template message"
+          }
+        }
+      },
+
+      "project": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "color": { "type": "string", "example": "#6366F1" },
+          "status": { "type": "string", "enum": ["active", "completed", "archived", "on_hold"] },
+          "deadline": { "type": "string", "format": "date" },
+          "contact_id": { "type": "integer" },
+          "company_id": { "type": "integer" },
+          "tasks_count": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "project_create": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "color": { "type": "string", "example": "#6366F1" },
+          "status": { "type": "string", "enum": ["active", "completed", "archived", "on_hold"] },
+          "deadline": { "type": "string", "format": "date" },
+          "contact_id": { "type": "integer" },
+          "company_id": { "type": "integer" }
+        }
+      },
+
+      "project_task": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "project_id": { "type": "integer" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["todo", "in_progress", "done"] },
+          "assignee_id": { "type": "integer" },
+          "due_at": { "type": "string", "format": "date-time" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "project_task_create": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["todo", "in_progress", "done"], "default": "todo" },
+          "assignee_id": { "type": "integer" },
+          "due_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "internal_channel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "channel_type": { "type": "string", "enum": ["public", "private", "direct"] },
+          "member_ids": {
+            "type": "array",
+            "items": { "type": "integer" }
+          },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "internal_channel_create": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "channel_type": { "type": "string", "enum": ["public", "private", "direct"], "default": "public" },
+          "member_ids": {
+            "type": "array",
+            "items": { "type": "integer" }
+          }
+        }
+      },
+
+      "internal_channel_message": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "channel_id": { "type": "integer" },
+          "content": { "type": "string" },
+          "author_id": { "type": "integer" },
+          "pinned": { "type": "boolean" },
+          "attachments": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "customer_pulse_entry": {
+        "type": "object",
+        "properties": {
+          "conversation_id": { "type": "integer" },
+          "sentiment": { "type": "string", "enum": ["positive", "neutral", "negative"] },
+          "score": { "type": "number", "format": "float" },
+          "analyzed_at": { "type": "string", "format": "date-time" },
+          "inbox_id": { "type": "integer" },
+          "agent_id": { "type": "integer" }
+        }
+      },
+
+      "customer_pulse_summary": {
+        "type": "object",
+        "properties": {
+          "total_analyzed": { "type": "integer" },
+          "positive_count": { "type": "integer" },
+          "neutral_count": { "type": "integer" },
+          "negative_count": { "type": "integer" },
+          "positive_percentage": { "type": "number", "format": "float" },
+          "neutral_percentage": { "type": "number", "format": "float" },
+          "negative_percentage": { "type": "number", "format": "float" },
+          "average_score": { "type": "number", "format": "float" }
+        }
+      },
+
+      "outbound_report_timeseries": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": { "type": "integer" },
+                "sent": { "type": "integer" },
+                "delivered": { "type": "integer" },
+                "read": { "type": "integer" },
+                "failed": { "type": "integer" }
+              }
+            }
+          }
+        }
+      },
+
+      "outbound_report_summary": {
+        "type": "object",
+        "properties": {
+          "total_sent": { "type": "integer" },
+          "total_delivered": { "type": "integer" },
+          "total_read": { "type": "integer" },
+          "total_failed": { "type": "integer" },
+          "delivery_rate": { "type": "number", "format": "float" },
+          "read_rate": { "type": "number", "format": "float" }
+        }
+      },
+
+      "template_performance": {
+        "type": "object",
+        "properties": {
+          "template_name": { "type": "string" },
+          "language": { "type": "string" },
+          "category": { "type": "string" },
+          "total_sent": { "type": "integer" },
+          "total_delivered": { "type": "integer" },
+          "total_read": { "type": "integer" },
+          "total_failed": { "type": "integer" },
+          "delivery_rate": { "type": "number", "format": "float" },
+          "read_rate": { "type": "number", "format": "float" }
+        }
+      }
+
+    }
+  }
+}
