@@ -1,0 +1,165 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Voxys Connect Developer Docs",
+  "description": "Official developer documentation for Voxys Connect - the omnichannel CPaaS platform for MENA businesses. Learn about our APIs and integrations.",
+  "logo": {
+    "dark": "/logo/dark.png",
+    "light": "/logo/light.png"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#00B0D4",
+    "light": "#33C4E0",
+    "dark": "#008BA8"
+  },
+  "fonts": {
+    "heading": {
+      "family": "Haskoy",
+      "weight": 500,
+      "source": "https://d1j5ayohogpcd2.cloudfront.net/fonts/haskoy/Haskoy-Medium.woff2",
+      "format": "woff2"
+    },
+    "body": {
+      "family": "Haskoy",
+      "weight": 400,
+      "source": "https://d1j5ayohogpcd2.cloudfront.net/fonts/haskoy/Haskoy-Regular.woff2",
+      "format": "woff2"
+    }
+  },
+  "theme": "maple",
+  "navigation": {
+    "anchors": [
+      {
+        "anchor": "Introduction",
+        "icon": "house",
+        "pages": ["introduction"]
+      },
+      {
+        "anchor": "API Reference",
+        "icon": "square-terminal",
+        "pages": [],
+        "groups": [
+          {
+            "group": "Getting Started",
+            "description": "Learn about Voxys Connect APIs and how to use them",
+            "pages": ["api-reference/introduction"]
+          },
+          {
+            "group": "Application APIs",
+            "description": "APIs for managing application aspects of Voxys Connect",
+            "includeTags": [
+              "Agents",
+              "Automation Rule",
+              "Account AgentBots",
+              "Canned Responses",
+              "Contact Labels",
+              "Contacts",
+              "Conversation Assignments",
+              "Conversation Labels",
+              "Conversations",
+              "Custom Attributes",
+              "Custom Filters",
+              "Help Center",
+              "Inboxes",
+              "Integrations",
+              "Messages",
+              "Profile",
+              "Reports",
+              "Teams",
+              "Webhooks"
+            ],
+            "openapi": "/api-reference/application_swagger.json"
+          },
+          {
+            "group": "Platform APIs",
+            "description": "APIs for managing platform aspects of Voxys Connect",
+            "includeTags": ["Accounts", "Account Users", "AgentBots", "Users"],
+            "openapi": "/api-reference/platform_swagger.json"
+          },
+          {
+            "group": "Client APIs",
+            "description": "APIs for client applications",
+            "includeTags": [
+              "Contacts API",
+              "Conversations API",
+              "Messages API"
+            ],
+            "openapi": "/api-reference/client_swagger.json"
+          },
+          {
+            "group": "Other APIs",
+            "description": "Additional APIs",
+            "includeTags": ["CSAT Survey Page"],
+            "openapi": "/api-reference/other_swagger.json"
+          },
+          {
+            "group": "CRM APIs",
+            "description": "Leads, companies, pipelines, tasks, and conversation CRM",
+            "includeTags": [
+              "Leads",
+              "Companies",
+              "Pipelines",
+              "Follow-up Tasks",
+              "Conversation CRM"
+            ],
+            "openapi": "/api-reference/voxys_crm_swagger.json"
+          },
+          {
+            "group": "Campaigns & Messaging",
+            "description": "Campaign management, scheduling, audience, and outbound reports",
+            "includeTags": [
+              "Campaigns Extended",
+              "Scheduled Messages",
+              "Outbound Reports"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
+          },
+          {
+            "group": "WhatsApp APIs",
+            "description": "WhatsApp templates, flows, and catalogs",
+            "includeTags": [
+              "WhatsApp Templates",
+              "WhatsApp Flows"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
+          },
+          {
+            "group": "Appointments",
+            "description": "Appointment booking, services, providers, and reminders",
+            "includeTags": [
+              "Appointments",
+              "Appointment Services",
+              "Providers"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
+          },
+          {
+            "group": "Projects & Collaboration",
+            "description": "Project management and internal team channels",
+            "includeTags": [
+              "Projects",
+              "Internal Channels"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
+          },
+          {
+            "group": "AI & Analytics",
+            "description": "Customer sentiment analysis and leads reporting",
+            "includeTags": [
+              "Customer Pulse",
+              "Leads Reports"
+            ],
+            "openapi": "/api-reference/voxys_features_swagger.json"
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "twitter": "https://twitter.com/voxysai",
+      "github": "https://github.com/voxysai",
+      "linkedin": "https://www.linkedin.com/company/voxysai"
+    }
+  }
+}
