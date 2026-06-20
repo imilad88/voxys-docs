@@ -4,7 +4,7 @@
     "title": "Voxys Connect",
     "description": "This is the API documentation for Voxys Connect server.",
     "version": "1.1.0",
-    "termsOfService": "https://www.chatwoot.com/terms-of-service/",
+    "termsOfService": "https://voxys.ai/terms",
     "contact": {
       "email": "support@voxys.ai"
     },
@@ -1083,7 +1083,7 @@
               "busy",
               "offline"
             ],
-            "description": "The availability status of the agent computed by Chatwoot."
+            "description": "The availability status of the agent computed by Voxys Connect."
           },
           "auto_offline": {
             "type": "boolean",
@@ -1671,7 +1671,7 @@
                   "string",
                   "null"
                 ],
-                "description": "Latest version of Chatwoot available",
+                "description": "Latest version of Voxys Connect available",
                 "example": "3.0.0"
               },
               "subscribed_features": {
@@ -1959,7 +1959,7 @@
           },
           "pubsub_token": {
             "type": "string",
-            "description": "The token to be used to connect to chatwoot websocket"
+            "description": "The token to be used to connect to Voxys Connect websocket"
           }
         }
       },
@@ -3045,7 +3045,7 @@
                     "type": "object",
                     "description": "The processed param values for template variables in template",
                     "example": {
-                      "1": "Chatwoot"
+                      "1": "Voxys Connect"
                     }
                   }
                 }
@@ -3646,7 +3646,7 @@
           "custom_domain": {
             "type": "string",
             "description": "Custom domain to display help center.",
-            "example": "chatwoot.help"
+            "example": "voxys.ai"
           },
           "header_text": {
             "type": "string",
@@ -3656,7 +3656,7 @@
           "homepage_link": {
             "type": "string",
             "description": "link to main dashboard",
-            "example": "https://www.chatwoot.com/"
+            "example": "https://voxys.ai"
           },
           "name": {
             "type": "string",
@@ -3722,7 +3722,7 @@
           "icon": {
             "type": "string",
             "description": "The icon of the category as a string (emoji)",
-            "example": "\ud83d\udcda"
+            "example": "📚"
           },
           "parent_category_id": {
             "type": "integer",
@@ -5730,7 +5730,7 @@
         "schema": {
           "type": "string"
         },
-        "description": "Id of the session for which the conversation is created.\n\n\n\n Source Ids can be obtained through contactable inboxes API or via generated.<br/><br/>Website: Chatwoot generated string which can be obtained from webhook events. <br/> Phone Channels(Twilio): Phone number in e164 format <br/> Email Channels: Contact Email address <br/> API Channel: Any Random String"
+        "description": "Id of the session for which the conversation is created.\n\n\n\n Source Ids can be obtained through contactable inboxes API or via generated.<br/><br/>Website: Voxys Connect generated string which can be obtained from webhook events. <br/> Phone Channels(Twilio): Phone number in e164 format <br/> Email Channels: Contact Email address <br/> API Channel: Any Random String"
       },
       "contact_sort_param": {
         "in": "query",

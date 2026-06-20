@@ -4,7 +4,7 @@
     "title": "Voxys Connect",
     "description": "This is the API documentation for Voxys Connect server.",
     "version": "1.1.0",
-    "termsOfService": "https://www.chatwoot.com/terms-of-service/",
+    "termsOfService": "https://voxys.ai/terms",
     "contact": {
       "email": "support@voxys.ai"
     },
@@ -2455,9 +2455,9 @@
                     {
                       "id": 4,
                       "color": "#1F93FF",
-                      "custom_domain": "chatwoot.help",
+                      "custom_domain": "voxys.ai",
                       "header_text": "Handbook",
-                      "homepage_link": "https://www.chatwoot.com",
+                      "homepage_link": "https://voxys.ai",
                       "name": "Handbook",
                       "page_title": "Handbook",
                       "slug": "handbook",
@@ -2476,11 +2476,11 @@
                         "id": 37,
                         "avatar_url": "https://example.com/avatar.png",
                         "channel_id": 1,
-                        "name": "Chatwoot",
+                        "name": "Voxys Connect",
                         "channel_type": "Channel::WebWidget",
                         "greeting_enabled": true,
                         "widget_color": "#1F93FF",
-                        "website_url": "chatwoot.com"
+                        "website_url": "voxys.ai"
                       },
                       "logo": {
                         "id": 19399916,
@@ -2576,33 +2576,33 @@
                         }
                       ]
                     },
-                    "custom_domain": "chatwoot.help",
+                    "custom_domain": "voxys.ai",
                     "header_text": "Handbook",
-                    "homepage_link": "https://www.chatwoot.com",
+                    "homepage_link": "https://voxys.ai",
                     "name": "Handbook",
                     "slug": "handbook",
                     "page_title": "Handbook",
                     "account_id": 123,
                     "inbox": {
                       "id": 123,
-                      "name": "Chatwoot",
-                      "website_url": "chatwoot.com",
+                      "name": "Voxys Connect",
+                      "website_url": "voxys.ai",
                       "channel_type": "Channel::WebWidget",
                       "avatar_url": "https://example.com/avatar.png",
                       "widget_color": "#1F93FF",
                       "website_token": "4cWzuf9i9jxN9tbnv8K9STKU",
                       "enable_auto_assignment": true,
                       "web_widget_script": "<script>...</script>",
-                      "welcome_title": "Hi there ! \ud83d\ude4c\ud83c\udffc",
+                      "welcome_title": "Hi there ! 🙌🏼",
                       "welcome_tagline": "We make it simple to connect with us.",
                       "greeting_enabled": true,
-                      "greeting_message": "Hey there \ud83d\udc4b, Thank you for reaching out to us.",
+                      "greeting_message": "Hey there 👋, Thank you for reaching out to us.",
                       "channel_id": 123,
                       "working_hours_enabled": true,
                       "enable_email_collect": true,
                       "csat_survey_enabled": true,
                       "timezone": "America/Los_Angeles",
-                      "business_name": "Chatwoot",
+                      "business_name": "Voxys Connect",
                       "hmac_mandatory": true
                     },
                     "logo": {
@@ -2989,7 +2989,7 @@
         ],
         "operationId": "newConversation",
         "summary": "Create New Conversation",
-        "description": "Creating a conversation in chatwoot requires a source id. \n\n Learn more about source_id: https://www.chatwoot.com/hc/user-guide/articles/1677839703-how-to-create-an-api-channel-inbox#send-messages-to-the-api-channel",
+        "description": "Creating a conversation in Voxys Connect requires a source id. \n\n Learn more about source_id: https://voxys.ai",
         "security": [
           {
             "userApiKey": []
@@ -6914,7 +6914,7 @@
             "userApiKey": []
           }
         ],
-        "description": "Get conversation counts grouped by channel type and status for a given date range.\nReturns statistics for each channel type including open, resolved, pending, snoozed, and total conversation counts.\n\n**Note:** This API endpoint is available only in Chatwoot version 4.10.0 and above. The date range is limited to a maximum of 6 months.\n",
+        "description": "Get conversation counts grouped by channel type and status for a given date range.\nReturns statistics for each channel type including open, resolved, pending, snoozed, and total conversation counts.\n\n**Note:** This API endpoint is available only in Voxys Connect version 4.10.0 and above. The date range is limited to a maximum of 6 months.\n",
         "responses": {
           "200": {
             "description": "Success",
@@ -7180,7 +7180,7 @@
             "userApiKey": []
           }
         ],
-        "description": "Get the distribution of first response times grouped by channel type.\nReturns conversation counts in different time buckets (0-1h, 1-4h, 4-8h, 8-24h, 24h+) for each channel type.\n\n**Note:** This API endpoint is available only in Chatwoot version 4.11.0 and above.\n",
+        "description": "Get the distribution of first response times grouped by channel type.\nReturns conversation counts in different time buckets (0-1h, 1-4h, 4-8h, 8-24h, 24h+) for each channel type.\n\n**Note:** This API endpoint is available only in Voxys Connect version 4.11.0 and above.\n",
         "responses": {
           "200": {
             "description": "Success",
@@ -7260,7 +7260,7 @@
             "userApiKey": []
           }
         ],
-        "description": "Get a matrix showing the count of conversations for each inbox-label combination.\nReturns a list of inboxes, labels, and a 2D matrix where each cell contains the count of conversations\nin a specific inbox that have a specific label applied.\n\n**Note:** This API endpoint is available only in Chatwoot version 4.11.0 and above.\n",
+        "description": "Get a matrix showing the count of conversations for each inbox-label combination.\nReturns a list of inboxes, labels, and a 2D matrix where each cell contains the count of conversations\nin a specific inbox that have a specific label applied.\n\n**Note:** This API endpoint is available only in Voxys Connect version 4.11.0 and above.\n",
         "responses": {
           "200": {
             "description": "Success",
@@ -7318,7 +7318,7 @@
             "userApiKey": []
           }
         ],
-        "description": "Get the count of outgoing messages grouped by a specified entity (agent, team, inbox, or label).\nWhen grouped by agent, messages sent by bots (AgentBot, Captain::Assistant) are excluded.\n\n**Note:** This API endpoint is available only in Chatwoot version 4.11.0 and above.\n",
+        "description": "Get the count of outgoing messages grouped by a specified entity (agent, team, inbox, or label).\nWhen grouped by agent, messages sent by bots (AgentBot, Captain::Assistant) are excluded.\n\n**Note:** This API endpoint is available only in Voxys Connect version 4.11.0 and above.\n",
         "parameters": [
           {
             "in": "query",
@@ -8403,7 +8403,7 @@
               "busy",
               "offline"
             ],
-            "description": "The availability status of the agent computed by Chatwoot."
+            "description": "The availability status of the agent computed by Voxys Connect."
           },
           "auto_offline": {
             "type": "boolean",
@@ -8991,7 +8991,7 @@
                   "string",
                   "null"
                 ],
-                "description": "Latest version of Chatwoot available",
+                "description": "Latest version of Voxys Connect available",
                 "example": "3.0.0"
               },
               "subscribed_features": {
@@ -9279,7 +9279,7 @@
           },
           "pubsub_token": {
             "type": "string",
-            "description": "The token to be used to connect to chatwoot websocket"
+            "description": "The token to be used to connect to Voxys Connect websocket"
           }
         }
       },
@@ -10365,7 +10365,7 @@
                     "type": "object",
                     "description": "The processed param values for template variables in template",
                     "example": {
-                      "1": "Chatwoot"
+                      "1": "Voxys Connect"
                     }
                   }
                 }
@@ -10966,7 +10966,7 @@
           "custom_domain": {
             "type": "string",
             "description": "Custom domain to display help center.",
-            "example": "chatwoot.help"
+            "example": "voxys.ai"
           },
           "header_text": {
             "type": "string",
@@ -10976,7 +10976,7 @@
           "homepage_link": {
             "type": "string",
             "description": "link to main dashboard",
-            "example": "https://www.chatwoot.com/"
+            "example": "https://voxys.ai"
           },
           "name": {
             "type": "string",
@@ -11042,7 +11042,7 @@
           "icon": {
             "type": "string",
             "description": "The icon of the category as a string (emoji)",
-            "example": "\ud83d\udcda"
+            "example": "📚"
           },
           "parent_category_id": {
             "type": "integer",
@@ -13050,7 +13050,7 @@
         "schema": {
           "type": "string"
         },
-        "description": "Id of the session for which the conversation is created.\n\n\n\n Source Ids can be obtained through contactable inboxes API or via generated.<br/><br/>Website: Chatwoot generated string which can be obtained from webhook events. <br/> Phone Channels(Twilio): Phone number in e164 format <br/> Email Channels: Contact Email address <br/> API Channel: Any Random String"
+        "description": "Id of the session for which the conversation is created.\n\n\n\n Source Ids can be obtained through contactable inboxes API or via generated.<br/><br/>Website: Voxys Connect generated string which can be obtained from webhook events. <br/> Phone Channels(Twilio): Phone number in e164 format <br/> Email Channels: Contact Email address <br/> API Channel: Any Random String"
       },
       "contact_sort_param": {
         "in": "query",
