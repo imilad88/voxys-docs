@@ -1,0 +1,401 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect - Proactive Messaging APIs",
+    "description": "Proactive messages fired by connected commerce/EMR systems (COD prompts, shipment tracking, cart recovery, FHIR results, membership win-back) and an on-demand fire endpoint.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Proactive Messaging",
+      "tags": [
+        "Proactive Messaging"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Proactive Messaging",
+      "description": "Proactive message log, failure alerts, retry, and on-demand fire."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the resource"
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed – invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity – validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/proactive_messages": {
+      "get": {
+        "tags": [
+          "Proactive Messaging"
+        ],
+        "operationId": "listProactiveMessages",
+        "summary": "List / log proactive messages",
+        "description": "Account-wide proactive log + summary (admin). Pass conversation_id for the conversation sidebar log, or export=csv to download.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter: commerce|healthcare|appointments|manual"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by event type"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by status"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ISO date from"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ISO date to"
+          },
+          {
+            "name": "conversation_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Scope to one conversation"
+          },
+          {
+            "name": "export",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Set to 'csv' to download"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Page number"
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Proactive Messaging"
+        ],
+        "operationId": "fireProactiveMessage",
+        "summary": "Fire a proactive message on demand",
+        "description": "Send a proactive message into an existing conversation without waiting for a store/EMR event (e.g. a tracking update or a template from your own backend). Reuses the proactive pipeline, so the account's quiet hours and the proactive log apply. The event is recorded with source 'manual'. To message a contact with no conversation yet, create the conversation first.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "conversation_id",
+                  "content"
+                ],
+                "properties": {
+                  "conversation_id": {
+                    "type": "integer",
+                    "description": "Target conversation id (caller must have access)"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "Message body (or template body)"
+                  },
+                  "content_type": {
+                    "type": "string",
+                    "description": "text (default), input_select, template, etc.",
+                    "default": "text"
+                  },
+                  "content_attributes": {
+                    "type": "object",
+                    "description": "Template/interactive payload (template name, params, buttons)"
+                  },
+                  "event_type": {
+                    "type": "string",
+                    "description": "Log label (default 'manual', e.g. tracking, promo)",
+                    "default": "manual"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message queued or sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "description": "Proactive event id"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "sent or deferred (deferred = queued past quiet hours)"
+                    },
+                    "conversation_id": {
+                      "type": "integer",
+                      "description": "Target conversation id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/proactive_messages/{id}/resend": {
+      "post": {
+        "tags": [
+          "Proactive Messaging"
+        ],
+        "operationId": "resendProactiveMessage",
+        "summary": "Retry a failed proactive message",
+        "description": "Retry a failed commerce proactive message by cloning it.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/proactive_messages/alert_settings": {
+      "get": {
+        "tags": [
+          "Proactive Messaging"
+        ],
+        "operationId": "getProactiveAlertSettings",
+        "summary": "Get failure-alert settings",
+        "description": "Fetch the account's proactive failure-alert configuration.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Proactive Messaging"
+        ],
+        "operationId": "updateProactiveAlertSettings",
+        "summary": "Update failure-alert settings",
+        "description": "Update alert thresholds and the optional alert webhook.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable failure alerts"
+                  },
+                  "threshold": {
+                    "type": "integer",
+                    "description": "Failures before alerting"
+                  },
+                  "window_minutes": {
+                    "type": "integer",
+                    "description": "Evaluation window"
+                  },
+                  "cooldown_minutes": {
+                    "type": "integer",
+                    "description": "Min minutes between alerts"
+                  },
+                  "webhook_url": {
+                    "type": "string",
+                    "description": "Optional alert webhook URL"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

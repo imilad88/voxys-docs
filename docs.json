@@ -32,7 +32,9 @@
       {
         "anchor": "Introduction",
         "icon": "house",
-        "pages": ["introduction"]
+        "pages": [
+          "introduction"
+        ]
       },
       {
         "anchor": "API Reference",
@@ -42,7 +44,9 @@
           {
             "group": "Getting Started",
             "description": "Learn about Voxys Connect APIs and how to use them",
-            "pages": ["api-reference/introduction"]
+            "pages": [
+              "api-reference/introduction"
+            ]
           },
           {
             "group": "Application APIs",
@@ -83,7 +87,9 @@
           {
             "group": "Other APIs",
             "description": "Additional APIs",
-            "includeTags": ["CSAT Survey Page"],
+            "includeTags": [
+              "CSAT Survey Page"
+            ],
             "openapi": "/api-reference/other_swagger.json"
           },
           {
@@ -144,6 +150,22 @@
               "Leads Reports"
             ],
             "openapi": "/api-reference/voxys_analytics_swagger.json"
+          },
+          {
+            "group": "Billing & Subscriptions",
+            "description": "Plans, add-ons, packs, commerce platforms, WhatsApp credits and payment sessions",
+            "includeTags": [
+              "Billing"
+            ],
+            "openapi": "/api-reference/voxys_billing_swagger.json"
+          },
+          {
+            "group": "Proactive Messaging",
+            "description": "Proactive message log, failure alerts, and on-demand fire",
+            "includeTags": [
+              "Proactive Messaging"
+            ],
+            "openapi": "/api-reference/voxys_proactive_swagger.json"
           }
         ]
       }

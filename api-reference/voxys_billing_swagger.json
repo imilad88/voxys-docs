@@ -1,0 +1,888 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect - Billing APIs",
+    "description": "Subscription, add-ons, packs, commerce platforms, WhatsApp credits and MyFatoorah payment sessions (embedded card + hosted product links).",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Billing",
+      "tags": [
+        "Billing"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Billing",
+      "description": "Plans, add-ons, packs, commerce platforms, WhatsApp credits and payment sessions."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the resource"
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed – invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity – validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/billing": {
+      "get": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "getBilling",
+        "summary": "Get billing overview",
+        "description": "Subscription, usage, plans, packs, add-on/commerce prices, payment_mode, payment_links, annual_multiplier and active add-ons.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/create_payment_session": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "createPaymentSession",
+        "summary": "Start a plan purchase",
+        "description": "Begin a plan subscription payment.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plan": {
+                    "type": "string",
+                    "description": "Plan key (starter/business/enterprise)"
+                  },
+                  "billing_period": {
+                    "type": "string",
+                    "description": "monthly or yearly",
+                    "enum": [
+                      "monthly",
+                      "yearly"
+                    ]
+                  },
+                  "payment_method": {
+                    "type": "string",
+                    "description": "myfatoorah (default)"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/embedded_session": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "embeddedSession",
+        "summary": "Embedded card session (plan/add-on)",
+        "description": "Create an embedded card session for a plan or add-on.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plan": {
+                    "type": "string",
+                    "description": "Plan key (omit if addon)"
+                  },
+                  "addon": {
+                    "type": "string",
+                    "description": "Add-on key (omit if plan)"
+                  },
+                  "billing_period": {
+                    "type": "string",
+                    "description": "monthly or yearly",
+                    "enum": [
+                      "monthly",
+                      "yearly"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/execute_embedded": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "executeEmbedded",
+        "summary": "Charge an embedded session",
+        "description": "Charge the embedded card session; returns a 3-D Secure payment URL.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session_id": {
+                    "type": "string",
+                    "description": "Embedded session id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/hosted_session": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "hostedSession",
+        "summary": "Hosted payment page",
+        "description": "Hosted MyFatoorah page for the pending purchase (all methods).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/embedded_pack_session": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "embeddedPackSession",
+        "summary": "Embedded session for a pack",
+        "description": "Embedded card session for a one-off pack (AI credits, extra agents/inboxes/contacts).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pack": {
+                    "type": "string",
+                    "description": "Pack id, e.g. ai_credits_5k"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/embedded_whatsapp_session": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "embeddedWhatsappSession",
+        "summary": "Embedded session for WhatsApp top-up",
+        "description": "Embedded card session for a WhatsApp credit top-up.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "description": "Top-up amount in billing currency"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/embedded_commerce_session": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "embeddedCommerceSession",
+        "summary": "Embedded session for a commerce platform",
+        "description": "Embedded card session to activate a commerce platform (requires e-commerce add-on).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "description": "salla/zid/shopify/woocommerce/magento/odoo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/link_session": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "linkSession",
+        "summary": "Record a product-link payment intent",
+        "description": "Link mode: record what's being bought just before opening a static MyFatoorah product link, so the webhook can match the payment and activate it.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "description": "plan|addon|pack|commerce|whatsapp"
+                  },
+                  "plan": {
+                    "type": "string",
+                    "description": "Plan key (kind=plan)"
+                  },
+                  "addon": {
+                    "type": "string",
+                    "description": "Add-on key (kind=addon)"
+                  },
+                  "pack": {
+                    "type": "string",
+                    "description": "Pack id (kind=pack)"
+                  },
+                  "platform": {
+                    "type": "string",
+                    "description": "Platform (kind=commerce)"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Amount (kind=whatsapp)"
+                  },
+                  "billing_period": {
+                    "type": "string",
+                    "description": "monthly or yearly",
+                    "enum": [
+                      "monthly",
+                      "yearly"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/purchase_addon": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "purchaseAddon",
+        "summary": "Purchase an industry add-on",
+        "description": "Purchase an industry add-on (paid plans only).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "addon": {
+                    "type": "string",
+                    "description": "Add-on key"
+                  },
+                  "payment_method": {
+                    "type": "string",
+                    "description": "myfatoorah (default)"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/grant_addon": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "grantAddon",
+        "summary": "Grant an add-on (admin)",
+        "description": "Manually grant an add-on (bank transfer / reconciliation).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "addon": {
+                    "type": "string",
+                    "description": "Add-on key"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/revoke_addon": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "revokeAddon",
+        "summary": "Revoke an add-on (admin)",
+        "description": "Manually revoke an add-on.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "addon": {
+                    "type": "string",
+                    "description": "Add-on key"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/commerce_platforms": {
+      "get": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "listCommercePlatforms",
+        "summary": "List commerce platforms",
+        "description": "E-commerce add-on picker: active + available platforms with monthly/yearly prices.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/activate_commerce_platform": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "activateCommercePlatform",
+        "summary": "Activate a commerce platform",
+        "description": "Activate one platform (monthly or yearly, following the plan term).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "description": "Platform key"
+                  },
+                  "billing_period": {
+                    "type": "string",
+                    "description": "monthly or yearly",
+                    "enum": [
+                      "monthly",
+                      "yearly"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/deactivate_commerce_platform": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "deactivateCommercePlatform",
+        "summary": "Deactivate a commerce platform",
+        "description": "Deactivate a platform.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "description": "Platform key"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/topup_whatsapp": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "topupWhatsapp",
+        "summary": "WhatsApp credit top-up (signed)",
+        "description": "Signed WhatsApp credit top-up (HMAC signature required).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "description": "Top-up amount"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/cancel": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "cancelSubscription",
+        "summary": "Cancel subscription",
+        "description": "Cancel the current subscription.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/billing/resume": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "resumeSubscription",
+        "summary": "Resume subscription",
+        "description": "Resume a cancelled subscription.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    }
+  }
+}
