@@ -1,0 +1,727 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect - Catalog & Products",
+    "description": "Manage product catalogs: manual products, CSV import, store sync (Salla/Zid/Shopify/WooCommerce/Magento/Odoo) and Meta/WhatsApp catalog publishing.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Catalog & Products",
+      "tags": [
+        "Catalog & Products"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Catalog & Products",
+      "description": "Catalogs, products, store + Meta sync, and WhatsApp publishing."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the resource"
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed – invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity – validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/catalogs/{id}/products": {
+      "get": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "listCatalogProducts",
+        "summary": "List catalog products",
+        "description": "Products in a catalog (optional filters).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "name": "available",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only available"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by category"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/{id}/sync": {
+      "post": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "syncCatalog",
+        "summary": "Sync catalog",
+        "description": "Pull products from the connected store or Meta catalog.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/{id}/import_csv": {
+      "post": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "importCatalogCsv",
+        "summary": "Import products CSV",
+        "description": "Import products from CSV (multipart). Optionally push to Meta.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "push_to_meta": {
+                    "type": "boolean",
+                    "description": "Also push to the Meta catalog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/{id}/push_to_meta": {
+      "post": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "pushCatalogToMeta",
+        "summary": "Push to Meta",
+        "description": "Publish catalog products to the connected Meta catalog.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source_catalog_id": {
+                    "type": "integer",
+                    "description": "Optional source catalog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/{id}/publish": {
+      "post": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "publishCatalog",
+        "summary": "Publish to WhatsApp",
+        "description": "Make the catalog cart-enabled on WhatsApp.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/{id}/create_product": {
+      "post": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "createCatalogProduct",
+        "summary": "Create product",
+        "description": "Create a manual product.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Product name"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description"
+                  },
+                  "price": {
+                    "type": "number",
+                    "description": "Price"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Currency"
+                  },
+                  "availability": {
+                    "type": "string",
+                    "description": "in stock / out of stock"
+                  },
+                  "image_url": {
+                    "type": "string",
+                    "description": "Image URL"
+                  },
+                  "sku": {
+                    "type": "string",
+                    "description": "SKU"
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Category"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "description": "Quantity"
+                  },
+                  "payment_url": {
+                    "type": "string",
+                    "description": "Payment link"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/{id}/update_product": {
+      "patch": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "updateCatalogProduct",
+        "summary": "Update product",
+        "description": "Update a manual product.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_id": {
+                    "type": "integer",
+                    "description": "Product id"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Name"
+                  },
+                  "price": {
+                    "type": "number",
+                    "description": "Price"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/{id}/delete_product": {
+      "delete": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "deleteCatalogProduct",
+        "summary": "Delete product",
+        "description": "Delete a manual product.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_id": {
+                    "type": "integer",
+                    "description": "Product id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/csv_template": {
+      "get": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "catalogCsvTemplate",
+        "summary": "CSV template",
+        "description": "Download the product-import CSV template.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/meta_catalogs": {
+      "get": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "listMetaCatalogs",
+        "summary": "List Meta catalogs",
+        "description": "Meta catalogs on the WhatsApp Business Account.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "name": "inbox_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "WhatsApp inbox id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/create_meta_catalog": {
+      "post": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "createMetaCatalog",
+        "summary": "Create Meta catalog",
+        "description": "Create a catalog on Meta and connect it to the number.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inbox_id": {
+                    "type": "integer",
+                    "description": "WhatsApp inbox id"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Catalog name"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/import_meta": {
+      "post": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "importMetaCatalogs",
+        "summary": "Import Meta catalogs",
+        "description": "Import all WABA Meta catalogs as local catalogs.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inbox_id": {
+                    "type": "integer",
+                    "description": "WhatsApp inbox id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/connected_store": {
+      "get": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "connectedStore",
+        "summary": "Get connected store",
+        "description": "The connected e-commerce store (Salla/Zid/Shopify/...).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/catalogs/sync_store": {
+      "post": {
+        "tags": [
+          "Catalog & Products"
+        ],
+        "operationId": "syncStore",
+        "summary": "Sync connected store",
+        "description": "Sync the connected store's catalog & products.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "app_id": {
+                    "type": "string",
+                    "description": "Optional store app id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

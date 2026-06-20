@@ -1,0 +1,330 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect - FHIR Healthcare",
+    "description": "Connect a FHIR clinic endpoint for appointment slots, providers, and proactive lab-result delivery over WhatsApp.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "FHIR Healthcare",
+      "tags": [
+        "FHIR Healthcare"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "FHIR Healthcare",
+      "description": "FHIR connection, providers, and appointment slots."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the resource"
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed – invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity – validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/integrations/fhir": {
+      "get": {
+        "tags": [
+          "FHIR Healthcare"
+        ],
+        "operationId": "getFhir",
+        "summary": "Get FHIR settings",
+        "description": "Connection settings (no secrets).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "FHIR Healthcare"
+        ],
+        "operationId": "connectFhir",
+        "summary": "Connect FHIR",
+        "description": "Connect a FHIR clinic endpoint.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "base_url": {
+                    "type": "string",
+                    "description": "FHIR base URL"
+                  },
+                  "token_url": {
+                    "type": "string",
+                    "description": "OAuth token URL"
+                  },
+                  "client_id": {
+                    "type": "string",
+                    "description": "Client id"
+                  },
+                  "client_secret": {
+                    "type": "string",
+                    "description": "Client secret"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "description": "OAuth scope"
+                  },
+                  "inbox_id": {
+                    "type": "integer",
+                    "description": "WhatsApp inbox id"
+                  },
+                  "auto_send_results": {
+                    "type": "boolean",
+                    "description": "Auto-send lab results"
+                  },
+                  "default_locale": {
+                    "type": "string",
+                    "description": "Default locale"
+                  },
+                  "supported_locales": {
+                    "type": "array",
+                    "description": "Supported locales"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "FHIR Healthcare"
+        ],
+        "operationId": "updateFhir",
+        "summary": "Update FHIR settings",
+        "description": "Update settings (blank fields keep stored values).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "base_url": {
+                    "type": "string",
+                    "description": "FHIR base URL"
+                  },
+                  "auto_send_results": {
+                    "type": "boolean",
+                    "description": "Auto-send lab results"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "FHIR Healthcare"
+        ],
+        "operationId": "disconnectFhir",
+        "summary": "Disconnect FHIR",
+        "description": "Remove the FHIR connection.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/fhir/providers": {
+      "get": {
+        "tags": [
+          "FHIR Healthcare"
+        ],
+        "operationId": "fhirProviders",
+        "summary": "List providers",
+        "description": "FHIR Schedule/clinic providers.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/fhir/slots": {
+      "get": {
+        "tags": [
+          "FHIR Healthcare"
+        ],
+        "operationId": "fhirSlots",
+        "summary": "List free slots",
+        "description": "Free FHIR appointment slots.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    }
+  }
+}

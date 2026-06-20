@@ -1,0 +1,576 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect - Chatbot Flows",
+    "description": "Visual n8n-style chatbot flow builder: lifecycle, node autosave, AI builder, interactive playground, executions, and export.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Chatbot Flows",
+      "tags": [
+        "Chatbot Flows"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Chatbot Flows",
+      "description": "Flow builder lifecycle, AI builder, playground, executions, export."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the resource"
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed – invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity – validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/nodes/{node_id}": {
+      "patch": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "updateFlowNode",
+        "summary": "Autosave a node",
+        "description": "Save a single node without a full flow save.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Node id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "description": "Node content (JSONB)"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/activate": {
+      "post": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "activateFlow",
+        "summary": "Activate flow",
+        "description": "Activate the flow on an inbox.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inbox_id": {
+                    "type": "integer",
+                    "description": "Inbox id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/deactivate": {
+      "post": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "deactivateFlow",
+        "summary": "Deactivate flow",
+        "description": "Deactivate the flow.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/duplicate": {
+      "post": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "duplicateFlow",
+        "summary": "Duplicate flow",
+        "description": "Clone the flow (unpublished, inactive).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/export": {
+      "get": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "exportFlow",
+        "summary": "Export flow JSON",
+        "description": "Download the flow definition as JSON.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/export_csv": {
+      "get": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "exportFlowCsv",
+        "summary": "Export executions CSV",
+        "description": "Export flow execution data as CSV.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ISO from"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ISO to"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/playground": {
+      "post": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "flowPlayground",
+        "summary": "Test in playground",
+        "description": "Run the flow interactively in a sandbox session.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session_id": {
+                    "type": "string",
+                    "description": "Sandbox session id"
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "User message"
+                  },
+                  "flow_data": {
+                    "type": "object",
+                    "description": "Optional unsaved flow state"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "resetFlowPlayground",
+        "summary": "Reset playground",
+        "description": "Reset a playground session.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session_id": {
+                    "type": "string",
+                    "description": "Sandbox session id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/ai_builder": {
+      "post": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "aiBuildFlow",
+        "summary": "AI build/edit flow",
+        "description": "Generate or edit the flow graph from a natural-language instruction.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "instruction": {
+                    "type": "string",
+                    "description": "Natural-language instruction"
+                  },
+                  "target_channels": {
+                    "type": "array",
+                    "description": "Channels the flow targets"
+                  },
+                  "flow_data": {
+                    "type": "object",
+                    "description": "Optional live canvas state"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/executions": {
+      "get": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "listFlowExecutions",
+        "summary": "List executions",
+        "description": "Execution history of the flow.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/chatbot_flows/{id}/executions/{execution_id}": {
+      "get": {
+        "tags": [
+          "Chatbot Flows"
+        ],
+        "operationId": "showFlowExecution",
+        "summary": "Get execution",
+        "description": "Execution details and context.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "name": "execution_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Execution id"
+          }
+        ]
+      }
+    }
+  }
+}

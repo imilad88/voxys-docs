@@ -1,0 +1,379 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect - Odoo CRM",
+    "description": "Connect a self-hosted Odoo instance: field mapping, two-way contact/lead sync, and read-only orders/invoices in the conversation.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Odoo CRM",
+      "tags": [
+        "Odoo CRM"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Odoo CRM",
+      "description": "Odoo connection, field mappings, sync, and partner records."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the resource"
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed – invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity – validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/integrations/odoo": {
+      "post": {
+        "tags": [
+          "Odoo CRM"
+        ],
+        "operationId": "connectOdoo",
+        "summary": "Connect Odoo",
+        "description": "Validate the URL, test authentication, and store the connection.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "Odoo base URL"
+                  },
+                  "db": {
+                    "type": "string",
+                    "description": "Database name"
+                  },
+                  "login": {
+                    "type": "string",
+                    "description": "User login/email"
+                  },
+                  "api_key": {
+                    "type": "string",
+                    "description": "Odoo API key"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Odoo CRM"
+        ],
+        "operationId": "disconnectOdoo",
+        "summary": "Disconnect Odoo",
+        "description": "Remove the Odoo connection.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/odoo/stages": {
+      "get": {
+        "tags": [
+          "Odoo CRM"
+        ],
+        "operationId": "odooStages",
+        "summary": "List Odoo CRM stages",
+        "description": "crm.stage list for funnel-stage mapping.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/odoo/fields": {
+      "get": {
+        "tags": [
+          "Odoo CRM"
+        ],
+        "operationId": "odooFields",
+        "summary": "List storable partner fields",
+        "description": "res.partner fields available for mapping.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/odoo/field_mappings": {
+      "get": {
+        "tags": [
+          "Odoo CRM"
+        ],
+        "operationId": "getOdooMappings",
+        "summary": "Get field mappings",
+        "description": "Current field mappings and pull_create setting.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Odoo CRM"
+        ],
+        "operationId": "updateOdooMappings",
+        "summary": "Update field mappings",
+        "description": "Save the Chatwoot↔Odoo field mappings.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mappings": {
+                    "type": "array",
+                    "description": "List of {model, chatwoot_key, chatwoot_kind, odoo_field, direction}"
+                  },
+                  "pull_create": {
+                    "type": "boolean",
+                    "description": "Create new Chatwoot contacts for unmatched Odoo partners"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/odoo/sync": {
+      "post": {
+        "tags": [
+          "Odoo CRM"
+        ],
+        "operationId": "syncOdoo",
+        "summary": "Trigger a pull now",
+        "description": "Immediate Odoo→Chatwoot pull (contacts/companies + leads).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/odoo/partner_records": {
+      "get": {
+        "tags": [
+          "Odoo CRM"
+        ],
+        "operationId": "odooPartnerRecords",
+        "summary": "Get partner orders & invoices",
+        "description": "Read-only Odoo sales orders + invoices for a contact (conversation sidebar).",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "name": "contact_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Contact id"
+          }
+        ]
+      }
+    }
+  }
+}

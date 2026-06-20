@@ -1,0 +1,528 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Voxys Connect - Commerce",
+    "description": "Conversational commerce: checkout settings, multi-store orders, and store connectors (Salla, Zid, Shopify).",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@voxys.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://connect.voxys.ai"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Commerce",
+      "tags": [
+        "Commerce Checkout",
+        "Commerce Orders",
+        "Store Connectors"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Commerce Checkout",
+      "description": "WhatsApp checkout settings: currency, payment methods, COD, cart recovery, quiet hours, templates."
+    },
+    {
+      "name": "Commerce Orders",
+      "description": "Read and create orders across connected stores."
+    },
+    {
+      "name": "Store Connectors",
+      "description": "Connect Salla / Zid / Shopify and pull their orders."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "userApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_access_token",
+        "description": "All API requests must include the `api_access_token` header with a valid agent or administrator token."
+      }
+    },
+    "parameters": {
+      "account_id": {
+        "name": "account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the account"
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Numeric ID of the resource"
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "description": "Authentication failed – invalid or missing api_access_token"
+      },
+      "not_found": {
+        "description": "Resource not found"
+      },
+      "unprocessable": {
+        "description": "Unprocessable entity – validation errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "userApiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/accounts/{account_id}/commerce_checkout_settings": {
+      "get": {
+        "tags": [
+          "Commerce Checkout"
+        ],
+        "operationId": "getCheckoutSettings",
+        "summary": "Get checkout settings",
+        "description": "Currency, payment methods, COD, cart recovery, quiet hours, templates.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Commerce Checkout"
+        ],
+        "operationId": "updateCheckoutSettings",
+        "summary": "Update checkout settings",
+        "description": "Update the WhatsApp checkout configuration.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "default_currency": {
+                    "type": "string",
+                    "description": "Currency"
+                  },
+                  "payment_methods_mode": {
+                    "type": "string",
+                    "description": "Payment methods mode"
+                  },
+                  "cod_enabled": {
+                    "type": "boolean",
+                    "description": "Enable cash on delivery"
+                  },
+                  "cart_recovery_enabled": {
+                    "type": "boolean",
+                    "description": "Enable cart recovery"
+                  },
+                  "quiet_hours_enabled": {
+                    "type": "boolean",
+                    "description": "Defer proactive sends in quiet hours"
+                  },
+                  "quiet_hours_start": {
+                    "type": "string",
+                    "description": "Quiet hours start"
+                  },
+                  "quiet_hours_end": {
+                    "type": "string",
+                    "description": "Quiet hours end"
+                  },
+                  "default_locale": {
+                    "type": "string",
+                    "description": "Default locale"
+                  },
+                  "payment_gateways": {
+                    "type": "array",
+                    "description": "Enabled gateways"
+                  },
+                  "supported_locales": {
+                    "type": "array",
+                    "description": "Supported locales"
+                  },
+                  "messages": {
+                    "type": "object",
+                    "description": "Message overrides"
+                  },
+                  "templates": {
+                    "type": "object",
+                    "description": "Template mappings"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/commerce/orders": {
+      "get": {
+        "tags": [
+          "Commerce Orders"
+        ],
+        "operationId": "listCommerceOrders",
+        "summary": "List orders for a contact",
+        "description": "Orders from all connected stores for a contact.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "name": "contact_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Contact id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/commerce/create_order": {
+      "post": {
+        "tags": [
+          "Commerce Orders"
+        ],
+        "operationId": "createCommerceOrder",
+        "summary": "Create an order",
+        "description": "Create an order in the connected store and send the checkout link.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "conversation_id": {
+                    "type": "integer",
+                    "description": "Conversation id"
+                  },
+                  "products": {
+                    "type": "array",
+                    "description": "[{external_id, sku, quantity}]"
+                  },
+                  "payment_method": {
+                    "type": "string",
+                    "description": "Payment method"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/salla/auth": {
+      "post": {
+        "tags": [
+          "Store Connectors"
+        ],
+        "operationId": "sallaAuth",
+        "summary": "Salla OAuth URL",
+        "description": "Get the Salla OAuth authorize URL.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/salla/orders": {
+      "get": {
+        "tags": [
+          "Store Connectors"
+        ],
+        "operationId": "sallaOrders",
+        "summary": "List Salla orders",
+        "description": "Orders from the connected Salla store.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "name": "contact_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Contact id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/zid/auth": {
+      "post": {
+        "tags": [
+          "Store Connectors"
+        ],
+        "operationId": "zidAuth",
+        "summary": "Zid OAuth URL",
+        "description": "Get the Zid OAuth authorize URL.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/zid/orders": {
+      "get": {
+        "tags": [
+          "Store Connectors"
+        ],
+        "operationId": "zidOrders",
+        "summary": "List Zid orders",
+        "description": "Orders from the connected Zid store.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "name": "contact_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Contact id"
+          }
+        ]
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/shopify/auth": {
+      "post": {
+        "tags": [
+          "Store Connectors"
+        ],
+        "operationId": "shopifyAuth",
+        "summary": "Shopify OAuth URL",
+        "description": "Get the Shopify OAuth authorize URL.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "shop_domain": {
+                    "type": "string",
+                    "description": "myshop.myshopify.com"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/integrations/shopify/orders": {
+      "get": {
+        "tags": [
+          "Store Connectors"
+        ],
+        "operationId": "shopifyOrders",
+        "summary": "List Shopify orders",
+        "description": "Orders for the Shopify customer matching the contact.",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessable"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/account_id"
+          },
+          {
+            "name": "contact_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Contact id"
+          }
+        ]
+      }
+    }
+  }
+}

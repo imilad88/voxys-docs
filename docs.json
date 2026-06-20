@@ -152,20 +152,54 @@
             "openapi": "/api-reference/voxys_analytics_swagger.json"
           },
           {
-            "group": "Billing & Subscriptions",
-            "description": "Plans, add-ons, packs, commerce platforms, WhatsApp credits and payment sessions",
-            "includeTags": [
-              "Billing"
-            ],
-            "openapi": "/api-reference/voxys_billing_swagger.json"
-          },
-          {
             "group": "Proactive Messaging",
             "description": "Proactive message log, failure alerts, and on-demand fire",
             "includeTags": [
               "Proactive Messaging"
             ],
             "openapi": "/api-reference/voxys_proactive_swagger.json"
+          },
+          {
+            "group": "Odoo CRM",
+            "description": "Connect Odoo, map fields, sync, and view orders/invoices",
+            "includeTags": [
+              "Odoo CRM"
+            ],
+            "openapi": "/api-reference/voxys_odoo_swagger.json"
+          },
+          {
+            "group": "Catalog & Products",
+            "description": "Product catalogs, store sync, and WhatsApp/Meta publishing",
+            "includeTags": [
+              "Catalog & Products"
+            ],
+            "openapi": "/api-reference/voxys_catalog_swagger.json"
+          },
+          {
+            "group": "Chatbot Flows",
+            "description": "Flow builder, AI builder, playground, executions",
+            "includeTags": [
+              "Chatbot Flows"
+            ],
+            "openapi": "/api-reference/voxys_flows_swagger.json"
+          },
+          {
+            "group": "Commerce",
+            "description": "Checkout settings, multi-store orders, and store connectors",
+            "includeTags": [
+              "Commerce Checkout",
+              "Commerce Orders",
+              "Store Connectors"
+            ],
+            "openapi": "/api-reference/voxys_commerce_swagger.json"
+          },
+          {
+            "group": "FHIR Healthcare",
+            "description": "FHIR connection, providers, and appointment slots",
+            "includeTags": [
+              "FHIR Healthcare"
+            ],
+            "openapi": "/api-reference/voxys_fhir_swagger.json"
           }
         ]
       }
