@@ -266,7 +266,7 @@
         ],
         "operationId": "updateOdooMappings",
         "summary": "Update field mappings",
-        "description": "Save the Chatwoot↔Odoo field mappings.",
+        "description": "Save the Voxys Connect ↔ Odoo field mappings.",
         "responses": {
           "200": {
             "description": "Successful response"
@@ -299,7 +299,7 @@
                   },
                   "pull_create": {
                     "type": "boolean",
-                    "description": "Create new Chatwoot contacts for unmatched Odoo partners"
+                    "description": "Create new Voxys Connect contacts for unmatched Odoo partners"
                   }
                 }
               }
@@ -315,7 +315,7 @@
         ],
         "operationId": "syncOdoo",
         "summary": "Trigger a pull now",
-        "description": "Immediate Odoo→Chatwoot pull (contacts/companies + leads).",
+        "description": "Immediate Odoo → Voxys Connect pull (contacts/companies + leads).",
         "responses": {
           "200": {
             "description": "Successful response"
